@@ -1,0 +1,304 @@
+const pool = require('../config/db');
+const { gerarTokenTurma } = require('../utils/jwt');
+
+const TURNOS_VALIDOS = ['matutino', 'integral', 'vespertino', 'noturno'];
+
+//funcao para validar o ano da turm
+function validarAno(ano) {
+  const n = Number(ano);
+  return Number.isInteger(n) && n >= 1 && n <= 3;
+}
+
+// funcao para criar uma nova turma (somente coordenadora)
+async function criarTurma(req, res) {
+  try {
+    const { nome, ano, codigo, turno } = req.body;
+
+    if (!nome || !ano || !codigo || !turno) {
+      return res.status(400).json({ error: 'Preencha todos os campos' });
+    }
+
+    if (!validarAno(ano)) {
+      return res.status(400).json({ error: 'Ano deve ser 1, 2 ou 3' });
+    }
+
+    if (!TURNOS_VALIDOS.includes(String(turno).toLowerCase())) {
+      return res.status(400).json({ error: `Turno deve ser um de: ${TURNOS_VALIDOS.join(', ')}` });
+    }
+
+    const nomeNorm = String(nome).trim().toLowerCase();
+    const codigoNorm = String(codigo).trim();
+
+    const [exists] = await pool.query(
+      `SELECT id FROM turmas WHERE (nome = ? AND ano = ?) OR codigo = ? LIMIT 1`,
+      [nomeNorm, ano, codigoNorm]
+    );
+
+    if (exists.length > 0) {
+      return res.status(400).json({ error: 'Já existe uma turma com esse nome/ano ou código' });
+    }
+
+    const [result] = await pool.query(
+      `INSERT INTO turmas (nome, ano, codigo, turno) VALUES (?, ?, ?, ?)`,
+      [nomeNorm, ano, codigoNorm, String(turno).toLowerCase()]
+    );
+
+    return res.status(201).json({
+      id: result.insertId,
+      nome: nomeNorm,
+      ano: Number(ano),
+      codigo: codigoNorm,
+      turno: String(turno).toLowerCase()
+    });
+  } catch (err) {
+    if (err.code === 'ER_DUP_ENTRY') {
+      return res.status(400).json({ error: 'Já existe uma turma com esse nome/ano ou código' });
+    }
+    console.error(err);
+    return res.status(500).json({ error: 'Erro ao cadastrar turma' });
+  }
+}
+
+// funcao para listar todas as turmas (somente coordenadora)
+async function listarTurmas(req, res) {
+  try {
+    const [rows] = await pool.query(
+      `SELECT id, nome, ano, codigo, turno, created_at, updated_at FROM turmas ORDER BY nome, ano`
+    );
+    return res.json(rows);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Erro ao listar turmas' });
+  }
+}
+
+// funcao para buscar uma turma por id (somente coordenadora)
+async function buscarTurma(req, res) {
+  try {
+    const { id } = req.params;
+
+    const [rows] = await pool.query(
+      `SELECT id, nome, ano, codigo, turno, created_at, updated_at FROM turmas WHERE id = ? LIMIT 1`,
+      [id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Turma não encontrada' });
+    }
+
+    return res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Erro ao buscar turma' });
+  }
+}
+
+// funcao para atualizar uma turma por id (somente coordenadora)
+async function atualizarTurma(req, res) {
+  try {
+    const { id } = req.params;
+    const { nome, ano, codigo, turno } = req.body;
+
+    const [rows] = await pool.query(`SELECT id FROM turmas WHERE id = ? LIMIT 1`, [id]);
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Turma não encontrada' });
+    }
+
+    const campos = [];
+    const valores = [];
+
+    if (nome !== undefined) {
+      campos.push('nome = ?');
+      valores.push(String(nome).trim().toLowerCase());
+    }
+
+    if (ano !== undefined) {
+      if (!validarAno(ano)) {
+        return res.status(400).json({ error: 'Ano deve ser 1, 2 ou 3' });
+      }
+      campos.push('ano = ?');
+      valores.push(ano);
+    }
+
+    if (codigo !== undefined) {
+      campos.push('codigo = ?');
+      valores.push(String(codigo).trim());
+    }
+
+    if (turno !== undefined) {
+      if (!TURNOS_VALIDOS.includes(String(turno).toLowerCase())) {
+        return res.status(400).json({ error: `Turno deve ser um de: ${TURNOS_VALIDOS.join(', ')}` });
+      }
+      campos.push('turno = ?');
+      valores.push(String(turno).toLowerCase());
+    }
+
+    if (campos.length === 0) {
+      return res.status(400).json({ error: 'Nenhum campo para atualizar' });
+    }
+
+    valores.push(id);
+
+    await pool.query(`UPDATE turmas SET ${campos.join(', ')} WHERE id = ?`, valores);
+
+    const [atualizado] = await pool.query(
+      `SELECT id, nome, ano, codigo, turno, created_at, updated_at FROM turmas WHERE id = ?`,
+      [id]
+    );
+
+    return res.json(atualizado[0]);
+  } catch (err) {
+    if (err.code === 'ER_DUP_ENTRY') {
+      return res.status(400).json({ error: 'Já existe uma turma com esse nome/ano ou código' });
+    }
+    console.error(err);
+    return res.status(500).json({ error: 'Erro ao atualizar turma' });
+  }
+}
+
+// funcao para deletar uma turma por id (somente coordenadora)
+async function deletarTurma(req, res) {
+  try {
+    const { id } = req.params;
+
+    const [result] = await pool.query(`DELETE FROM turmas WHERE id = ?`, [id]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Turma não encontrada' });
+    }
+
+    return res.status(204).send();
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Erro ao excluir turma' });
+  }
+}
+
+// funcao para login de turma (somente coordenadora)
+async function loginTurma(req, res) {
+  try {
+    const { turma, ano, codigoTurma } = req.body;
+
+    if (!turma || !ano || !codigoTurma) {
+      return res.status(400).json({ message: 'Preencha todos os campos' });
+    }
+
+    const nomeNorm = String(turma).trim().toLowerCase();
+    const codigoNorm = String(codigoTurma).trim();
+
+    const [rows] = await pool.query(
+      `SELECT id, nome, ano, codigo, turno FROM turmas WHERE nome = ? AND ano = ? AND codigo = ? LIMIT 1`,
+      [nomeNorm, ano, codigoNorm]
+    );
+
+    if (rows.length === 0) {
+      return res.status(401).json({ message: 'Código da turma inválido!' });
+    }
+
+    const turmaEncontrada = rows[0];
+    const token = gerarTokenTurma(turmaEncontrada);
+
+    return res.json({
+      token,
+      turma: turmaEncontrada
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Erro ao acessar turma' });
+  }
+}
+
+// funcao para receber o upload do arquivo de horarios (PDF/XLS/XLSX/CSV)
+// o arquivo ja chega salvo em disco (uploads/horarios) pelo multer antes desta funcao rodar
+async function uploadHorarios(req, res) {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'Nenhum arquivo enviado' });
+    }
+
+    // TODO: quando o script Python estiver pronto (backend/python/read_pdf.py),
+    // acionar aqui via child_process passando req.file.path, e o Python devolve
+    // o texto/JSON extraido para a rota /turmas/horarios-lidos salvar no banco.
+
+    return res.status(201).json({
+      mensagem: 'Arquivo de horários recebido com sucesso',
+      arquivo: req.file.filename,
+      caminho: req.file.path
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Erro ao salvar o arquivo de horários' });
+  }
+}
+
+const DIAS_VALIDOS = ['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'];
+
+// funcao que recebe o JSON ja processado (pelo script Python) e grava na tabela `aulas`
+// formato esperado no body: um array de objetos, ex:
+// [
+//   { turma_id: 1, dia_semana: 'segunda', hora_inicio: '07:00', hora_fim: '07:50',
+//     materia: 'Matemática', professores: [2, 3] }  // professores é opcional
+// ]
+async function salvarHorariosLidos(req, res) {
+  const horarios = req.body;
+
+  if (!Array.isArray(horarios) || horarios.length === 0) {
+    return res.status(400).json({ error: 'Envie um array de horários' });
+  }
+
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+
+    const inseridos = [];
+
+    for (const h of horarios) {
+      const { turma_id, dia_semana, hora_inicio, hora_fim, materia, professores } = h;
+
+      if (!turma_id || !dia_semana || !hora_inicio || !hora_fim || !materia) {
+        throw new Error('Cada horário precisa de turma_id, dia_semana, hora_inicio, hora_fim e materia');
+      }
+
+      if (!DIAS_VALIDOS.includes(String(dia_semana).toLowerCase())) {
+        throw new Error(`dia_semana inválido: ${dia_semana}`);
+      }
+
+      const [result] = await conn.query(
+        `INSERT INTO aulas (turma_id, dia_semana, hora_inicio, hora_fim, materia) VALUES (?, ?, ?, ?, ?)`,
+        [turma_id, String(dia_semana).toLowerCase(), hora_inicio, hora_fim, materia]
+      );
+
+      const aulaId = result.insertId;
+
+      if (Array.isArray(professores) && professores.length > 0) {
+        const valores = professores.map((profId) => [aulaId, profId]);
+        await conn.query(
+          `INSERT INTO aulas_professores (aula_id, professor_id) VALUES ?`,
+          [valores]
+        );
+      }
+
+      inseridos.push(aulaId);
+    }
+
+    await conn.commit();
+    return res.status(201).json({ mensagem: 'Horários salvos no banco com sucesso', ids: inseridos });
+  } catch (err) {
+    await conn.rollback();
+    console.error(err);
+    return res.status(400).json({ error: err.message || 'Erro ao salvar horários no banco' });
+  } finally {
+    conn.release();
+  }
+}
+
+module.exports = {
+  criarTurma,
+  listarTurmas,
+  buscarTurma,
+  atualizarTurma,
+  deletarTurma,
+  loginTurma,
+  uploadHorarios,
+  salvarHorariosLidos
+};

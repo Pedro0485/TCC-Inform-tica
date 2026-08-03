@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Salas - Coordenador</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+  <link rel="stylesheet" href="../../css/coordenador.css">
+  <link rel="shortcut icon" href="../../assets/images/logo.png" type="image/x-icon">
+  <link rel="stylesheet" href="../../css/coordenador-salas.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+
+<div class="page">
+  <aside class="sidebar">
+    <div class="logo">
+      <i class="ti ti-school"></i>
+      <span>Coordenador</span>
+    </div>
+    <nav>
+      <a class="nav-item" href="coordenador-home.html">
+        <i class="ti ti-bell"></i>
+        <span>Notificações</span>
+      </a>
+      <a class="nav-item" href="coordenador-calendario.html">
+        <i class="ti ti-calendar"></i>
+        <span>Calendário</span>
+      </a>
+      <a class="nav-item active" href="coordenador-salas.html">
+        <i class="ti ti-door"></i>
+        <span>Salas</span>
+      </a>
+      <a class="nav-item" href="coordenador-configuracoes.html">
+        <i class="ti ti-settings"></i>
+        <span>Configurações</span>
+      </a>
+      <a class="nav-item nav-logout" href="#">
+        <i class="ti ti-logout"></i>
+        <span>Sair</span>
+      </a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="card">
+      <div class="card-header-row">
+        <h2 class="card-title">Salas</h2>
+        <button class="btn-upload-horarios" onclick="abrirModalUpload()">
+          <i class="ti ti-upload"></i>
+          <span>Fazer upload de horários</span>
+        </button>
+      </div>
+
+      <!-- Seletor de turnos -->
+      <div class="turnos-nav">
+        <button class="turno-btn" onclick="setTurno('matutino')">Matutino</button>
+        <span class="separador">|</span>
+        <button class="turno-btn active" onclick="setTurno('integral')">Integral</button>
+        <span class="separador">|</span>
+        <button class="turno-btn" onclick="setTurno('vespertino')">Vespertino</button>
+        <span class="separador">|</span>
+        <button class="turno-btn" onclick="setTurno('noturno')">Noturno</button>
+      </div>
+
+      <!-- Seções por turno -->
+      <div id="sec-matutino" class="turmas-section"></div>
+      <div id="sec-integral" class="turmas-section visible"></div>
+      <div id="sec-vespertino" class="turmas-section"></div>
+      <div id="sec-noturno" class="turmas-section"></div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal de horários da turma -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-title">Horários da Turma</h3>
+      <button class="modal-close" onclick="fecharModal()">✕</button>
+    </div>
+    <div class="grade-wrapper">
+      <table class="grade" id="grade-table">
+        <thead>
+          <tr>
+            <th>Horário</th>
+            <th>Segunda</th>
+            <th>Terça</th>
+            <th>Quarta</th>
+            <th>Quinta</th>
+            <th>Sexta</th>
+          </tr>
+        </thead>
+        <tbody id="grade-body"></tbody>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="fecharModal()">Cancelar</button>
+      <button class="btn-save" onclick="salvarHorarios()">Salvar horários</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de upload de horários -->
+<div class="modal-overlay" id="modal-upload-overlay">
+  <div class="modal modal-upload">
+    <div class="modal-header">
+      <h3>Upload de horários</h3>
+      <button class="modal-close" onclick="fecharModalUpload()">✕</button>
+    </div>
+
+    <div class="upload-dropzone" id="upload-dropzone" onclick="document.getElementById('upload-file-input').click()">
+      <input type="file" id="upload-file-input" hidden accept=".pdf,.xls,.xlsx,.csv" onchange="handleFileSelect(event)" />
+      <i class="ti ti-cloud-upload upload-icon"></i>
+      <p class="upload-texto">Arraste um arquivo aqui ou <span class="upload-link">clique para selecionar</span></p>
+      <p class="upload-hint">PDF, XLS, XLSX ou CSV</p>
+      <p id="upload-filename" class="upload-filename"></p>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="fecharModalUpload()">Cancelar</button>
+      <button class="btn-save" id="btn-upload-confirm" onclick="confirmarUpload()" disabled>Enviar</button>
+    </div>
+  </div>
+</div>
+
+<script src="../../js/coordenador-salas.js"></script>
+
+</body>
+</html>
