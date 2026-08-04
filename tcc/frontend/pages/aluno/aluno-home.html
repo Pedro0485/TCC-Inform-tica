@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+  <link rel="stylesheet" href="../../css/coordenador.css">
+  <link rel="shortcut icon" href="../../assets/images/logo.png" type="image/x-icon">
+</head>
+<body>
+<script>if(localStorage.getItem("theme")==="dark"){document.body.classList.add("dark-theme");}</script> 
+<div class="page">
+  <aside class="sidebar">
+
+    <div class="logo">
+      <i class="ti ti-school"></i>
+      <span>Aluno</span>
+    </div>
+  
+    <nav>
+      <a class="nav-item active" href="aluno-home.html">
+        <i class="ti ti-bell"></i>
+        <span>Notificações</span>
+      </a>
+  
+      <a class="nav-item" href="aluno-calendario.html">
+        <i class="ti ti-calendar"></i>
+        <span>Calendário</span>
+      </a>
+
+      <a class="nav-item" href="aluno-configuracoes.html">
+        <i class="ti ti-settings"></i>
+        <span>Configurações</span>
+      </a>
+
+      <a class="nav-item nav-logout" href="#">
+      <i class="ti ti-logout"></i>
+      <span>Sair</span>
+      </a>
+
+    </nav>
+  
+    
+  
+  </aside>
+ 
+  <main class="main">
+    <div class="card">
+      <h2 class="card-title">Notificações Recentes</h2>
+      <div class="empty-state">
+        <i class="ti ti-bell-off"></i>
+        <span>Nenhuma notificação recente</span>
+      </div>
+    </div> 
+  </main>
+</div>
+ 
+</body>
+</html>

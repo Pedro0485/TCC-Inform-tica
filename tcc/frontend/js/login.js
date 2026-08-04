@@ -90,9 +90,9 @@ formProfessor.addEventListener('submit', async (e) => {
             heightAuto: false
         }).then(() => {
             if(data.professor.admin){
-                window.location.href = "../pages/coordenador/coordenador-home.html";
+                window.location.href = "/pages/coordenador/coordenador-home.html";
             }else{
-                window.location.href = "";
+                window.location.href = "/pages/professor/professor-home.html";
             }
         })
     }catch(err){
@@ -168,7 +168,7 @@ formTurma.addEventListener('submit', async (e) => {
             showConfirmButton: false,
             heightAuto: false
         }).then(() => {
-            window.location.href = '';
+            window.location.href = '/pages/aluno/aluno-home.html';
         })
     }catch(err){
         console.error(err);

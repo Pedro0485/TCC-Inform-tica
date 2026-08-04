@@ -1,7 +1,6 @@
 const toggle = document.getElementById("themeToggle");
 
-if (localStorage.getItem("theme") === "dark") {
-    document.body.classList.add("dark-theme");
+if(localStorage.getItem("theme") === "dark"){
     toggle.checked = true;
 }
 
