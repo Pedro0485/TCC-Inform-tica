@@ -546,3 +546,94 @@ body.dark-theme input{
     color:white;
     border-color:#555;
 }
+/* ===== Centro de notificações ===== */
+.notification-fab {
+  position: fixed;
+  top: 22px;
+  right: 24px;
+  z-index: 2200;
+  width: 46px;
+  height: 46px;
+  border: 0;
+  border-radius: 14px;
+  background: #fff;
+  color: #4b4b4b;
+  box-shadow: 0 8px 24px rgba(0,0,0,.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.notification-fab:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(0,0,0,.17); }
+.notification-fab i { font-size: 22px; }
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #e11233;
+  color: #fff;
+  border: 2px solid #fff;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+}
+.notification-badge.show { display: flex; }
+.notification-popover {
+  position: fixed;
+  top: 76px;
+  right: 24px;
+  z-index: 2199;
+  width: min(360px, calc(100vw - 32px));
+  background: #fff;
+  border: 1px solid #e7e7e7;
+  border-radius: 16px;
+  box-shadow: 0 16px 45px rgba(0,0,0,.17);
+  padding: 14px;
+  display: none;
+}
+.notification-popover.open { display: block; }
+.notification-popover-header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px; }
+.notification-popover-header strong { color:#333; font-size:15px; }
+.notification-popover-link { color:#e11233; text-decoration:none; font-size:12px; font-weight:600; }
+.notification-preview-list { display:flex; flex-direction:column; gap:8px; max-height:300px; overflow:auto; }
+.notification-preview-item { padding:10px 11px; border-radius:11px; background:#f7f7f7; display:flex; gap:10px; align-items:flex-start; }
+.notification-preview-item.unread { background:#fff1f3; }
+.notification-preview-item i { color:#e11233; margin-top:2px; }
+.notification-preview-item strong { display:block; font-size:13px; color:#333; }
+.notification-preview-item span { display:block; font-size:11px; color:#777; margin-top:3px; line-height:1.35; }
+.notification-preview-empty { padding:24px 10px; text-align:center; color:#999; font-size:12px; }
+.notifications-list { display:flex; flex-direction:column; gap:12px; }
+.notification-card { display:flex; gap:14px; align-items:flex-start; padding:15px; border:1px solid #ededed; border-radius:13px; background:#fff; }
+.notification-card.unread { border-color:#f3b7c1; background:#fff8f9; }
+.notification-card-icon { width:40px; height:40px; flex:0 0 40px; border-radius:12px; background:#fdecef; color:#e11233; display:flex; align-items:center; justify-content:center; }
+.notification-card-icon i { font-size:20px; }
+.notification-card-content { flex:1; min-width:0; }
+.notification-card-content h3 { font-size:14px; color:#333; margin-bottom:4px; }
+.notification-card-content p { font-size:12px; color:#666; line-height:1.45; }
+.notification-card-content time { display:block; margin-top:7px; font-size:10px; color:#999; }
+.notifications-actions { display:flex; justify-content:flex-end; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+.notification-action-btn { border:0; border-radius:9px; padding:8px 12px; font-size:11px; cursor:pointer; background:#f1f1f1; color:#444; }
+.notification-action-btn.primary { background:#e11233; color:#fff; }
+body.dark-theme .notification-fab,
+body.dark-theme .notification-popover,
+body.dark-theme .notification-card { background:#232323; color:#eee; border-color:#3a3a3a; }
+body.dark-theme .notification-fab { color:#eee; }
+body.dark-theme .notification-popover-header strong,
+body.dark-theme .notification-preview-item strong,
+body.dark-theme .notification-card-content h3 { color:#eee; }
+body.dark-theme .notification-preview-item { background:#303030; }
+body.dark-theme .notification-preview-item.unread,
+body.dark-theme .notification-card.unread { background:#3b2529; }
+body.dark-theme .notification-badge { border-color:#232323; }
+
+@media (max-width:768px) {
+  .notification-fab { top:auto; bottom:18px; right:18px; width:50px; height:50px; border-radius:16px; }
+  .notification-popover { top:auto; bottom:78px; right:16px; }
+}

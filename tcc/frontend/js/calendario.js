@@ -89,6 +89,15 @@ document.addEventListener('DOMContentLoaded', function () {
                             descricao: result.value.descricao
                         }
                     });
+
+                    if (window.NoctopusNotifications) {
+                        window.NoctopusNotifications.add({
+                            title: 'Novo evento no calendário',
+                            message: `${result.value.titulo} — ${info.dateStr.split('-').reverse().join('/')}`,
+                            type: 'calendar',
+                            url: location.href
+                        });
+                    }
         
                     Swal.fire({
                         icon: 'success',

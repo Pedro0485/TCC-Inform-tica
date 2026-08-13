@@ -58,13 +58,21 @@
   <main class="main">
     <div class="card">
       <h2 class="card-title">Notificações Recentes</h2>
-      <div class="empty-state">
-        <i class="ti ti-bell-off"></i>
-        <span>Nenhuma notificação recente</span>
+      <div class="notifications-actions">
+        <button class="notification-action-btn primary" type="button" data-notification-permission>Ativar notificações no dispositivo</button>
+        <button class="notification-action-btn" type="button" data-notification-read-all>Marcar todas como lidas</button>
+        <button class="notification-action-btn" type="button" data-notification-clear>Limpar</button>
+      </div>
+      <div class="notifications-list" data-notifications-list>
+        <div class="empty-state">
+          <i class="ti ti-bell-off"></i>
+          <span>Nenhuma notificação recente</span>
+        </div>
       </div>
     </div> 
   </main>
 </div>
  
+  <script src="../../js/notification-center.js"></script>
 </body>
 </html>

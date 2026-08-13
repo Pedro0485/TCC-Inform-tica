@@ -242,3 +242,73 @@ body{
 .container.active .toggle-right{
     transform: translateX(200%);
 }
+/* ===== Login otimizado para animações mais leves ===== */
+.form-container,
+.toggle-container,
+.toggle,
+.toggle-panel {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform-style: preserve-3d;
+}
+
+.form-container {
+    transition: transform .42s cubic-bezier(.22, 1, .36, 1), opacity .22s ease;
+}
+
+.container.active .sign-up {
+    animation: none;
+    opacity: 1;
+}
+
+.toggle-container {
+    transition: transform .42s cubic-bezier(.22, 1, .36, 1);
+    border-radius: 120px 0 0 80px;
+}
+
+.container.active .toggle-container {
+    border-radius: 0 120px 80px 0;
+}
+
+.toggle,
+.toggle-panel {
+    transition: transform .42s cubic-bezier(.22, 1, .36, 1);
+}
+
+@media (max-width: 768px) {
+    body {
+        min-height: 100dvh;
+        height: auto;
+        padding: 18px;
+    }
+
+    .container {
+        width: min(100%, 430px);
+        min-height: 620px;
+        border-radius: 24px;
+    }
+
+    .toggle-container {
+        border-radius: 90px 0 0 60px;
+    }
+
+    .container.active .toggle-container {
+        border-radius: 0 90px 60px 0;
+    }
+
+    .form-container,
+    .toggle-container,
+    .toggle,
+    .toggle-panel {
+        transition-duration: .30s;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
