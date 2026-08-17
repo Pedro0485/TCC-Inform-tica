@@ -93,3 +93,7 @@ pra saber quais arquivos vão entrar ali.
 **Frontend**
 Abra `frontend/index.html` no navegador (ou sirva a pasta `frontend/` com uma
 extensão tipo Live Server).
+
+
+## Notificações da coordenação
+A coordenação pode criar notificações na página `coordenador-home.html` para todos, professores, turmas/alunos ou destinatários específicos. As mensagens são persistidas no MySQL nas tabelas `notificacoes` e `notificacoes_lidas`. Após atualizar esta versão, execute `npm run db:schema` dentro de `backend` uma vez para criar as novas tabelas.

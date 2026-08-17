@@ -25,7 +25,7 @@ async function main() {
 
   try {
     await connection.query(sql);
-    console.log('Tabelas criadas/verificadas com sucesso: professores, turmas, aulas, aulas_professores.');
+    console.log('Tabelas criadas/verificadas com sucesso, incluindo notificacoes e notificacoes_lidas.');
   } catch (err) {
     console.error('Erro ao criar as tabelas:', err.message);
     process.exit(1);

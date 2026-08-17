@@ -56,6 +56,47 @@
   </aside>
  
   <main class="main">
+    <div class="card notification-create-card">
+      <div class="notification-create-heading">
+        <div>
+          <span class="eyebrow">COMUNICAÇÃO</span>
+          <h2 class="card-title">Criar nova notificação</h2>
+          <p>Envie avisos para professores, turmas ou para todos os usuários.</p>
+        </div>
+        <i class="ti ti-bell-plus"></i>
+      </div>
+      <form class="notification-create-form" data-create-notification-form>
+        <div class="notification-form-grid">
+          <label>
+            <span>Título</span>
+            <input type="text" name="titulo" maxlength="150" placeholder="Ex.: Reunião pedagógica" required>
+          </label>
+          <label>
+            <span>Destinatários</span>
+            <select name="destino_tipo" required>
+              <option value="todos">Todos</option>
+              <option value="professores">Todos os professores</option>
+              <option value="turmas">Todas as turmas / alunos</option>
+              <option value="professor">Professor específico</option>
+              <option value="turma">Turma específica</option>
+            </select>
+          </label>
+          <label data-specific-target-wrap hidden>
+            <span>Selecionar destinatário</span>
+            <select name="destino_id"></select>
+          </label>
+        </div>
+        <label class="notification-message-field">
+          <span>Mensagem</span>
+          <textarea name="mensagem" rows="4" maxlength="1500" placeholder="Digite a mensagem que será exibida para os usuários..." required></textarea>
+        </label>
+        <div class="notification-create-footer">
+          <small><i class="ti ti-info-circle"></i> A notificação fica salva no banco e aparece no sino dos destinatários.</small>
+          <button class="notification-action-btn primary" type="submit"><i class="ti ti-send"></i> Enviar notificação</button>
+        </div>
+      </form>
+    </div>
+
     <div class="card">
       <h2 class="card-title">Notificações Recentes</h2>
       <div class="notifications-actions">
@@ -73,6 +114,8 @@
   </main>
 </div>
  
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="../../js/notification-center.js"></script>
+  <script src="../../js/coordenador-notificacoes.js"></script>
 </body>
 </html>

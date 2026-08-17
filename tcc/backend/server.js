@@ -7,6 +7,7 @@ const pool = require('./api/config/db');
 const professorRouter = require('./api/routes/professorRoutes');
 const turmaRouter = require('./api/routes/turmaRoutes');
 const loginRouter = require('./api/routes/loginRoutes');
+const notificacaoRouter = require('./api/routes/notificacaoRoutes');
 
 const app = express();
 
@@ -52,6 +53,7 @@ app.get('/db', async (req, res) => {
 app.use('/professor', professorRouter);
 app.use('/turmas', turmaRouter);
 app.use('/login', loginRouter);
+app.use('/notificacoes', notificacaoRouter);
 
 // Tratamento de erros do multer (arquivo inválido, tamanho excedido, etc.)
 app.use((err, req, res, next) => {

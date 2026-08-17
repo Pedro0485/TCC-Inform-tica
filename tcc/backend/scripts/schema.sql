@@ -66,3 +66,29 @@ CREATE TABLE IF NOT EXISTS aulas_professores (
   CONSTRAINT fk_aulas_professores_aula FOREIGN KEY (aula_id) REFERENCES aulas(id) ON DELETE CASCADE,
   CONSTRAINT fk_aulas_professores_professor FOREIGN KEY (professor_id) REFERENCES professores(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+-- Notificações criadas pela coordenação
+CREATE TABLE IF NOT EXISTS notificacoes (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  titulo VARCHAR(150) NOT NULL,
+  mensagem TEXT NOT NULL,
+  tipo VARCHAR(30) NOT NULL DEFAULT 'info',
+  destino_tipo ENUM('todos','professores','turmas','professor','turma') NOT NULL,
+  destino_id INT NULL,
+  criado_por INT NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_notificacoes_criador FOREIGN KEY (criado_por) REFERENCES professores(id) ON DELETE CASCADE,
+  INDEX idx_notificacoes_destino (destino_tipo, destino_id),
+  INDEX idx_notificacoes_created (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS notificacoes_lidas (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  notificacao_id INT NOT NULL,
+  destinatario_tipo ENUM('professor','turma') NOT NULL,
+  destinatario_id INT NOT NULL,
+  lida_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_notificacao_leitura (notificacao_id, destinatario_tipo, destinatario_id),
+  CONSTRAINT fk_notificacoes_lidas_notificacao FOREIGN KEY (notificacao_id) REFERENCES notificacoes(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
