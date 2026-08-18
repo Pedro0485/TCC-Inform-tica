@@ -372,6 +372,26 @@ a{
   margin-bottom: 10px;
 }
 
+<<<<<<< HEAD
+=======
+#calendar {
+  background: white;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.fc {
+  max-width: 100%;
+}
+
+.fc-toolbar-title {
+  font-size: 1.3rem !important;
+}
+
+.fc-button {
+  text-transform: capitalize !important;
+}
+>>>>>>> ebfb69b166a0e258bc51a5a24af06fb252a962c6
 
 .meu-alerta {
   border-radius: 20px !important;
@@ -651,6 +671,7 @@ body.dark-theme .notification-create-form textarea { background:#151b28; border-
   .notification-create-footer { align-items:stretch; flex-direction:column; }
   .notification-create-footer .notification-action-btn { width:100%; justify-content:center; }
 }
+<<<<<<< HEAD
 
 /* =========================================================
    CALENDÁRIO - VISUAL MODERNO
@@ -1038,3 +1059,5 @@ body.dark-theme .fc .fc-list-event:hover td {
         font-size: 16px;
     }
 }
+=======
+>>>>>>> ebfb69b166a0e258bc51a5a24af06fb252a962c6
