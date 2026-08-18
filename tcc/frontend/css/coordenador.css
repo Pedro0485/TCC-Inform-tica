@@ -372,26 +372,6 @@ a{
   margin-bottom: 10px;
 }
 
-<<<<<<< HEAD
-=======
-#calendar {
-  background: white;
-  padding: 10px;
-  border-radius: 10px;
-}
-
-.fc {
-  max-width: 100%;
-}
-
-.fc-toolbar-title {
-  font-size: 1.3rem !important;
-}
-
-.fc-button {
-  text-transform: capitalize !important;
-}
->>>>>>> ebfb69b166a0e258bc51a5a24af06fb252a962c6
 
 .meu-alerta {
   border-radius: 20px !important;
@@ -671,7 +651,6 @@ body.dark-theme .notification-create-form textarea { background:#151b28; border-
   .notification-create-footer { align-items:stretch; flex-direction:column; }
   .notification-create-footer .notification-action-btn { width:100%; justify-content:center; }
 }
-<<<<<<< HEAD
 
 /* =========================================================
    CALENDÁRIO - VISUAL MODERNO
@@ -949,115 +928,3 @@ body.dark-theme .fc .fc-list-event:hover td {
     font-size: 10px;
   }
 }
-/* =====================================================
-   NAVEGAÇÃO DO CALENDÁRIO
-   Mantém:
-   ‹  Agosto 2026  ›
-   tudo na mesma linha
-   ===================================================== */
-
-   .fc .fc-toolbar {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
-.fc .fc-toolbar-chunk {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-/* Bloco central: anterior + título + próximo */
-.fc .fc-toolbar-chunk:nth-child(2) {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: nowrap;
-    white-space: nowrap;
-}
-
-/* Título do mês */
-.fc .fc-toolbar-title {
-    margin: 0 8px !important;
-    white-space: nowrap;
-    line-height: 1.2;
-}
-
-/* Botões anterior e próximo */
-.fc .fc-prev-button,
-.fc .fc-next-button {
-    width: 36px;
-    height: 36px;
-
-    padding: 0 !important;
-
-    display: inline-flex !important;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 50% !important;
-
-    font-size: 18px;
-    line-height: 1;
-
-    flex-shrink: 0;
-}
-
-/* Evita que os botões fiquem ocupando uma linha inteira */
-.fc .fc-prev-button span,
-.fc .fc-next-button span {
-    display: inline-block;
-}
-
-/* =====================================================
-   CELULAR
-   ===================================================== */
-
-@media (max-width: 768px) {
-
-    .fc .fc-toolbar {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .fc .fc-toolbar-chunk {
-        width: auto;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-wrap: nowrap;
-    }
-
-    .fc .fc-toolbar-chunk:nth-child(2) {
-        order: 1;
-        flex-wrap: nowrap;
-        white-space: nowrap;
-    }
-
-    .fc .fc-toolbar-chunk:first-child {
-        display: none;
-    }
-
-    .fc .fc-toolbar-chunk:last-child {
-        order: 2;
-    }
-
-    .fc .fc-toolbar-title {
-        font-size: 19px !important;
-        margin: 0 6px !important;
-        white-space: nowrap;
-    }
-
-    .fc .fc-prev-button,
-    .fc .fc-next-button {
-        width: 32px;
-        height: 32px;
-
-        font-size: 16px;
-    }
-}
-=======
->>>>>>> ebfb69b166a0e258bc51a5a24af06fb252a962c6
