@@ -1,0 +1,93 @@
+@baseURL = http://localhost:3000
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Mywibm9tZSI6IkFkbWluIiwiZW1haWwiOiJhZG1pbkBnbWFpbC5jb20iLCJhZG1pbiI6dHJ1ZSwidGlwbyI6InByb2Zlc3NvciIsImlhdCI6MTc4NTI3ODc0NCwiZXhwIjoxNzg1MzA3NTQ0fQ._EfGqDj-HCwsw-GPvOULCiMZT2xG1i5BAWZt3GNMZnU
+GET {{baseURL}}/db
+Content-Type: application/json
+
+### ----------------- LOGIN PROFESSOR (público) -----------------
+POST {{baseURL}}/professor/login
+Content-Type: application/json
+
+{
+    "email": "admin@gmail.com",
+    "senha": "admin123"
+}
+
+### ----------------- LOGIN TURMA (público, usado pelo aluno) -----------------
+POST {{baseURL}}/login/turma
+Content-Type: application/json
+
+{
+    "turma": "informatica",
+    "ano": 1,
+    "codigoTurma": "123"
+}
+
+### ================= CRUD PROFESSORES (somente coordenadora) =================
+
+### Criar professor
+POST {{baseURL}}/professor
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "nome": "lucas",
+    "email": "lucas@example.com",
+    "senha": "senha123",
+    "admin": false
+}
+
+### Listar professores
+GET {{baseURL}}/professor
+Authorization: Bearer {{token}}
+
+### Buscar professor por id
+GET {{baseURL}}/professor/3
+Authorization: Bearer {{token}}
+
+### Atualizar professor
+PUT {{baseURL}}/professor/3
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "nome": "Admin"
+}
+
+### Excluir professor
+DELETE {{baseURL}}/professor/4
+Authorization: Bearer {{token}}
+
+### ================= CRUD TURMAS (somente coordenadora) =================
+
+### Criar turma
+POST {{baseURL}}/turmas
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "nome": "mecatronica",
+    "ano": 3,
+    "codigo": "397",
+    "turno": "integral"
+}
+
+### Listar turmas
+GET {{baseURL}}/turmas
+Authorization: Bearer {{token}}
+
+### Buscar turma por id
+GET {{baseURL}}/turmas/2
+Authorization: Bearer {{token}}
+
+### Atualizar turma
+PUT {{baseURL}}/turmas/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "turno": "integral"
+}
+
+### Excluir turma
+DELETE {{baseURL}}/turmas/2
+Authorization: Bearer {{token}}
