@@ -115,11 +115,11 @@ document.addEventListener('DOMContentLoaded', function () {
             html: `
                 <div style="text-align:left; line-height:1.6;">
                     <p style="margin-bottom:8px;">
-                        <strong>📅 Data:</strong> ${data}
+                        <strong>Data:</strong> ${data}
                     </p>
 
                     <p style="margin:0;">
-                        <strong>📝 Descrição:</strong><br>
+                        <strong>Descrição:</strong><br>
                         ${descricao}
                     </p>
                 </div>
