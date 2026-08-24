@@ -1,5 +1,6 @@
 (() => {
   const LOCAL_KEY = 'noctopus_notifications_local_v1';
+  const DISMISSED_KEY = 'noctopus_notifications_dismissed_v1';
   const API = '/notificacoes';
 
   let serverItems = [];
@@ -46,6 +47,40 @@
     );
 
     notifyChanged();
+  }
+
+  // =========================================================
+  // NOTIFICAÇÕES DO SERVIDOR EXCLUÍDAS PELO USUÁRIO
+  // =========================================================
+  //
+  // Como as notificações do servidor podem ser destinadas a
+  // vários usuários ao mesmo tempo (ex.: "todos", "turmas"),
+  // excluir uma notificação não pode apagá-la do banco para
+  // todo mundo. Por isso guardamos, neste dispositivo, quais
+  // IDs o usuário já excluiu/limpou e as escondemos da lista.
+
+  function getDismissed() {
+    try {
+      const data = JSON.parse(
+        localStorage.getItem(DISMISSED_KEY) || '[]'
+      );
+
+      return Array.isArray(data) ? data.map(String) : [];
+    } catch (error) {
+      console.warn('[notificações] Erro ao ler notificações excluídas:', error);
+      return [];
+    }
+  }
+
+  function addDismissed(ids) {
+    const current = new Set(getDismissed());
+
+    ids.forEach(id => current.add(String(id)));
+
+    localStorage.setItem(
+      DISMISSED_KEY,
+      JSON.stringify(Array.from(current).slice(-300))
+    );
   }
 
   // =========================================================
@@ -244,9 +279,12 @@
         items = response.data;
       }
 
+      const dismissed = new Set(getDismissed());
+
       serverItems = items
         .map(n => normalizeNotification(n, 'server'))
-        .filter(Boolean);
+        .filter(Boolean)
+        .filter(n => !dismissed.has(String(n.id)));
 
       // =====================================================
       // IDENTIFICAR NOVA NOTIFICAÇÃO
@@ -435,11 +473,345 @@
   }
 
   // =========================================================
-  // LIMPAR NOTIFICAÇÕES LOCAIS
+  // CONFIRMAÇÃO DE EXCLUSÃO
   // =========================================================
 
-  function clearLocal() {
+  async function confirmNotificationDeletion({ all = false } = {}) {
+    const title = all
+      ? 'Limpar todas as notificações?'
+      : 'Excluir esta notificação?';
+
+    const text = all
+      ? 'Todas as notificações desta central serão removidas da sua visualização.'
+      : 'Essa ação não poderá ser desfeita.';
+
+    // Usa o SweetAlert2 quando estiver disponível no projeto.
+    if (window.Swal) {
+      const result = await window.Swal.fire({
+        icon: 'warning',
+        title,
+        text,
+        showCancelButton: true,
+        confirmButtonText: all ? 'Sim, limpar' : 'Sim, excluir',
+        cancelButtonText: 'Cancelar',
+        reverseButtons: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        customClass: {
+          icon: 'notification-delete-warning-icon'
+        },
+        focusCancel: true,
+        heightAuto: false
+      });
+
+      return result.isConfirmed;
+    }
+
+    // Fallback para páginas que não carregam o SweetAlert2.
+    return window.confirm(`${title}\n\n${text}`);
+  }
+
+  // =========================================================
+  // LIMPAR TODAS AS NOTIFICAÇÕES
+  // =========================================================
+  //
+  // Limpa as notificações locais e, para as notificações vindas
+  // do servidor, marca todas as que estão sendo exibidas no
+  // momento como excluídas neste dispositivo.
+
+  async function clearAll() {
+    const confirmed = await confirmNotificationDeletion({ all: true });
+
+    if (!confirmed) {
+      return false;
+    }
+
     saveLocal([]);
+
+    if (serverItems.length) {
+      addDismissed(serverItems.map(n => n.id));
+      serverItems = [];
+    }
+
+    notifyChanged();
+
+    return true;
+  }
+
+  // =========================================================
+  // EXCLUIR UMA NOTIFICAÇÃO
+  // =========================================================
+
+  function removeNotification(id, source) {
+
+    const isLocal =
+      source === 'local' ||
+      String(id).startsWith('local-');
+
+    if (isLocal) {
+
+      const items = getLocal().filter(
+        n => String(n.id) !== String(id)
+      );
+
+      saveLocal(items);
+
+      return;
+    }
+
+    addDismissed([id]);
+
+    serverItems = serverItems.filter(
+      n => String(n.id) !== String(id)
+    );
+
+    notifyChanged();
+  }
+
+  // =========================================================
+  // MARCAR UMA NOTIFICAÇÃO COMO LIDA
+  // =========================================================
+
+  async function markOneRead(id, source) {
+
+    const isLocal =
+      source === 'local' ||
+      String(id).startsWith('local-');
+
+    if (isLocal) {
+
+      const items = getLocal().map(n =>
+        String(n.id) === String(id)
+          ? { ...n, read: true }
+          : n
+      );
+
+      saveLocal(items);
+
+      return;
+    }
+
+    // Atualização otimista da interface
+    serverItems = serverItems.map(n =>
+      String(n.id) === String(id)
+        ? { ...n, read: true }
+        : n
+    );
+
+    notifyChanged();
+
+    if (!token()) {
+      return;
+    }
+
+    try {
+
+      await apiFetch(
+        `${API}/${id}/lida`,
+        { method: 'POST' }
+      );
+
+    } catch (error) {
+
+      console.warn(
+        '[notificações] Não foi possível marcar a notificação como lida:',
+        error
+      );
+    }
+  }
+
+  // =========================================================
+  // MODAL DE DETALHES DA NOTIFICAÇÃO
+  // =========================================================
+
+  function ensureDetailModal() {
+
+    let overlay = document.querySelector(
+      '.notification-detail-overlay'
+    );
+
+    if (overlay) {
+      return overlay;
+    }
+
+    overlay = document.createElement('div');
+    overlay.className = 'notification-detail-overlay';
+
+    overlay.innerHTML = `
+      <div
+        class="notification-detail-modal"
+        role="dialog"
+        aria-modal="true"
+      >
+        <button
+          type="button"
+          class="notification-detail-close"
+          aria-label="Fechar"
+        >
+          <i class="ti ti-x"></i>
+        </button>
+
+        <div class="notification-detail-icon">
+          <i class="ti ti-bell"></i>
+        </div>
+
+        <span class="notification-detail-status"></span>
+
+        <h3 class="notification-detail-title"></h3>
+
+        <time class="notification-detail-date"></time>
+
+        <p class="notification-detail-message"></p>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    overlay.addEventListener('click', event => {
+      if (event.target === overlay) {
+        closeDetailModal();
+      }
+    });
+
+    overlay
+      .querySelector('.notification-detail-close')
+      .addEventListener('click', closeDetailModal);
+
+    document.addEventListener('keydown', event => {
+      if (
+        event.key === 'Escape' &&
+        overlay.classList.contains('open')
+      ) {
+        closeDetailModal();
+      }
+    });
+
+    return overlay;
+  }
+
+  function closeDetailModal() {
+
+    const overlay = document.querySelector(
+      '.notification-detail-overlay'
+    );
+
+    if (overlay) {
+      overlay.classList.remove('open');
+    }
+  }
+
+  async function openNotification(notification) {
+
+    if (!notification) {
+      return;
+    }
+
+    const overlay = ensureDetailModal();
+
+    const icon =
+      notification.type === 'calendar'
+        ? 'calendar-event'
+        : 'bell';
+
+    overlay.querySelector(
+      '.notification-detail-icon i'
+    ).className = `ti ti-${icon}`;
+
+    const statusEl = overlay.querySelector(
+      '.notification-detail-status'
+    );
+
+    statusEl.textContent = notification.read
+      ? 'Lida'
+      : 'Não lida';
+
+    statusEl.classList.toggle(
+      'unread',
+      !notification.read
+    );
+
+    overlay.querySelector(
+      '.notification-detail-title'
+    ).textContent = notification.title;
+
+    overlay.querySelector(
+      '.notification-detail-date'
+    ).textContent = formatDate(notification.createdAt);
+
+    overlay.querySelector(
+      '.notification-detail-message'
+    ).textContent =
+      notification.message ||
+      'Esta notificação não possui descrição.';
+
+    overlay.classList.add('open');
+
+    // Fecha o popover do sino, caso esteja aberto
+    document
+      .querySelector('.notification-popover')
+      ?.classList.remove('open');
+
+    if (!notification.read) {
+      await markOneRead(
+        notification.id,
+        notification.source
+      );
+    }
+  }
+
+  function handleNotificationClick(event) {
+
+    // Clique no botão de excluir tem prioridade e não deve
+    // abrir o modal de detalhes da notificação.
+    const deleteButton = event.target.closest(
+      '[data-notification-delete]'
+    );
+
+    if (deleteButton) {
+
+      event.stopPropagation();
+
+      const id = deleteButton.dataset.notificationDelete;
+
+      const item = getAll().find(
+        n => String(n.id) === String(id)
+      );
+
+      if (!item) {
+        return;
+      }
+
+      // Só exclui depois que o usuário confirmar.
+      confirmNotificationDeletion().then(confirmed => {
+        if (!confirmed) {
+          return;
+        }
+
+        removeNotification(id, item.source);
+      });
+
+      return;
+    }
+
+    const card = event.target.closest(
+      '[data-notification-id]'
+    );
+
+    if (!card) {
+      return;
+    }
+
+    const id = card.dataset.notificationId;
+
+    const item = getAll().find(
+      n => String(n.id) === String(id)
+    );
+
+    if (!item) {
+      return;
+    }
+
+    openNotification(item);
   }
 
   // =========================================================
@@ -506,6 +878,13 @@
       return;
     }
 
+    // Conecta o clique apenas uma vez, já que o host
+    // é reaproveitado a cada nova renderização.
+    if (!host.dataset.notificationsBound) {
+      host.addEventListener('click', handleNotificationClick);
+      host.dataset.notificationsBound = '1';
+    }
+
     const items = getAll();
 
     if (!items.length) {
@@ -553,6 +932,16 @@
               </time>
 
             </div>
+
+            <button
+              type="button"
+              class="notification-card-delete"
+              data-notification-delete="${escapeHtml(n.id)}"
+              aria-label="Excluir notificação"
+              title="Excluir notificação"
+            >
+              <i class="ti ti-trash"></i>
+            </button>
 
           </article>
         `;
@@ -636,6 +1025,12 @@
       pop
     );
 
+    // Delegação de clique na lista do popover (o container
+    // é reaproveitado; só o innerHTML muda a cada update()).
+    pop
+      .querySelector('.notification-preview-list')
+      .addEventListener('click', handleNotificationClick);
+
     // -------------------------------------------------------
     // ATUALIZAR INTERFACE
     // -------------------------------------------------------
@@ -693,11 +1088,12 @@
             .map(n => `
               <div
                 class="notification-preview-item ${n.read ? '' : 'unread'}"
+                data-notification-id="${escapeHtml(n.id)}"
               >
 
                 <i class="ti ti-bell"></i>
 
-                <div>
+                <div class="notification-preview-item-text">
 
                   <strong>
                     ${escapeHtml(n.title)}
@@ -708,6 +1104,16 @@
                   </span>
 
                 </div>
+
+                <button
+                  type="button"
+                  class="notification-preview-delete"
+                  data-notification-delete="${escapeHtml(n.id)}"
+                  aria-label="Excluir notificação"
+                  title="Excluir notificação"
+                >
+                  <i class="ti ti-x"></i>
+                </button>
 
               </div>
             `)
@@ -780,7 +1186,11 @@
 
     markAllRead,
 
-    clearAll: clearLocal,
+    markOneRead,
+
+    remove: removeNotification,
+
+    clearAll,
 
     requestPermission,
 
@@ -846,7 +1256,7 @@
         )
         ?.addEventListener(
           'click',
-          clearLocal
+          clearAll
         );
 
       // -----------------------------------------------------

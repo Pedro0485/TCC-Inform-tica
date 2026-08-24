@@ -457,6 +457,123 @@ async function criar(req, res) {
 
 /**
  * ============================================================
+ * MARCAR UMA NOTIFICAÇÃO COMO LIDA
+ * ============================================================
+ *
+ * Usado quando o usuário clica em uma notificação específica
+ * para visualizar o conteúdo dela.
+ */
+async function marcarLida(req, res) {
+
+  try {
+
+    const usuario = req.usuario;
+
+    if (
+      !usuario ||
+      !usuario.id ||
+      !usuario.tipo
+    ) {
+
+      return res.status(401).json({
+        error: 'Usuário não autenticado'
+      });
+
+    }
+
+    const destinatario =
+      recipientFromUser(usuario);
+
+    if (!destinatario) {
+
+      return res.status(403).json({
+        error: 'Tipo de usuário inválido'
+      });
+
+    }
+
+    const notificacaoId =
+      Number(req.params.id);
+
+    if (
+      !Number.isInteger(notificacaoId) ||
+      notificacaoId <= 0
+    ) {
+
+      return res.status(400).json({
+        error: 'ID de notificação inválido'
+      });
+
+    }
+
+    // ========================================================
+    // CONFIRMA QUE A NOTIFICAÇÃO EXISTE
+    // ========================================================
+
+    const [notificacoes] = await pool.query(
+      'SELECT id FROM notificacoes WHERE id = ?',
+      [notificacaoId]
+    );
+
+    if (!notificacoes.length) {
+
+      return res.status(404).json({
+        error: 'Notificação não encontrada'
+      });
+
+    }
+
+    // ========================================================
+    // REGISTRA COMO LIDA
+    // ========================================================
+
+    await pool.query(
+
+      `
+        INSERT IGNORE INTO notificacoes_lidas
+        (
+          notificacao_id,
+          destinatario_tipo,
+          destinatario_id
+        )
+
+        VALUES (?, ?, ?)
+      `,
+
+      [
+        notificacaoId,
+        destinatario.tipo,
+        destinatario.id
+      ]
+
+    );
+
+    console.log(
+      `[notificações] Notificação ${notificacaoId} marcada como lida para ${usuario.tipo} ${usuario.id}`
+    );
+
+    return res.json({
+      ok: true
+    });
+
+  } catch (err) {
+
+    console.error(
+      '[notificações] Erro ao marcar notificação como lida:',
+      err
+    );
+
+    return res.status(500).json({
+      error: 'Erro ao marcar notificação como lida'
+    });
+
+  }
+
+}
+
+
+/**
+ * ============================================================
  * MARCAR TODAS COMO LIDAS
  * ============================================================
  */
@@ -628,5 +745,6 @@ async function marcarTodasLidas(req, res) {
 module.exports = {
   listar,
   criar,
+  marcarLida,
   marcarTodasLidas
 };

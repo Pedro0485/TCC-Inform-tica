@@ -928,3 +928,12 @@ body.dark-theme .fc .fc-list-event:hover td {
     font-size: 10px;
   }
 }
+
+/* Confirmação de exclusão de notificações */
+.notification-delete-warning-icon {
+  color: #dc3545 !important;
+  border-color: #dc3545 !important;
+}
+.notification-delete-warning-icon .swal2-icon-content {
+  color: #dc3545 !important;
+}
