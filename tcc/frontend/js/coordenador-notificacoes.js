@@ -162,18 +162,6 @@
 
 
       // ------------------------------------------------------
-      // PROFESSORES
-      // ------------------------------------------------------
-
-      if (type === 'professor') {
-
-        list = list.filter(
-          professor => !professor.admin
-        );
-      }
-
-
-      // ------------------------------------------------------
       // SELECT
       // ------------------------------------------------------
 
@@ -209,7 +197,8 @@
         if (type === 'professor') {
 
           option.textContent =
-            item.nome || `Professor ${item.id}`;
+            (item.nome || `Professor ${item.id}`) +
+            (item.admin ? ' (Coordenador)' : '');
 
         } else {
 

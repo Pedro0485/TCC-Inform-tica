@@ -255,3 +255,40 @@
       margin-left: 6px;
       font-weight: 600;
     }
+
+    /* ── Tema escuro ── */
+    body.dark-theme .upload-dropzone {
+      background: #262626;
+      border-color: #444;
+    }
+    body.dark-theme .upload-dropzone:hover,
+    body.dark-theme .upload-dropzone.dragover {
+      background: #3b2529;
+      border-color: #e11233;
+    }
+    body.dark-theme .upload-texto { color: #ddd; }
+    body.dark-theme .upload-hint { color: #999; }
+
+    body.dark-theme .turno-btn { color: #aaa; }
+    body.dark-theme .turno-btn:hover { background: #2b2b2b; color: #eee; }
+    body.dark-theme .separador { color: #555; }
+
+    body.dark-theme .modal { background: #1e1e1e; }
+    body.dark-theme .modal-header h3 { color: #eee; }
+    body.dark-theme .modal-close { color: #aaa; }
+    body.dark-theme .modal-footer { border-color: #333; }
+
+    body.dark-theme .grade th, body.dark-theme .grade td { border-color: #333; }
+    body.dark-theme .grade th { background: #262626; color: #ddd; }
+    body.dark-theme .grade td:first-child { background: #1c1c1c; color: #ccc; }
+    body.dark-theme .hora-cell select { color: #ddd; }
+    body.dark-theme .hora-cell.filled { background: #3b2529; }
+    body.dark-theme .hora-cell.filled select { color: #ff5c76; }
+
+    body.dark-theme .btn-cancel,
+    body.dark-theme .btn-save {
+      background: #2b2b2b;
+      border-color: #444;
+      color: #ddd;
+    }
+    body.dark-theme .btn-save:hover { background-color: #e11233; color: #fff; }

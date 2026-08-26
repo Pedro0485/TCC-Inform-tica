@@ -37,12 +37,15 @@ function capitalizar(txt) {
 // ───────────────────────── TURMAS ─────────────────────────
 
 async function carregarTurmas() {
+  const corpo = document.getElementById('corpo-turmas');
+  const vazio = document.getElementById('turmas-vazio');
+  // Esta página não tem mais a seção de turmas (foi movida para Salas) — não faz nada aqui
+  if (!corpo || !vazio) return;
+
   const res = await fetch(API_TURMAS, { headers: authHeaders() });
   if (await tratarRespostaAuth(res)) return;
 
   const turmas = await res.json();
-  const corpo = document.getElementById('corpo-turmas');
-  const vazio = document.getElementById('turmas-vazio');
   corpo.innerHTML = '';
 
   if (!Array.isArray(turmas) || turmas.length === 0) {
@@ -91,7 +94,8 @@ function fecharModalTurma() {
   document.getElementById('modal-turma-overlay').classList.remove('open');
 }
 
-document.getElementById('form-turma').addEventListener('submit', async (e) => {
+// Só registra os listeners de turma se essa seção existir nesta página
+document.getElementById('form-turma')?.addEventListener('submit', async (e) => {
   e.preventDefault();
 
   const id = document.getElementById('turma-id').value;
@@ -263,20 +267,15 @@ async function excluirProfessor(id) {
 }
 
 // Fecha modal clicando fora dele
-document.getElementById('modal-turma-overlay').addEventListener('click', (e) => {
+document.getElementById('modal-turma-overlay')?.addEventListener('click', (e) => {
   if (e.target.id === 'modal-turma-overlay') fecharModalTurma();
 });
 document.getElementById('modal-professor-overlay').addEventListener('click', (e) => {
   if (e.target.id === 'modal-professor-overlay') fecharModalProfessor();
 });
 
-// Logout (mesmo padrão das outras páginas do coordenador)
-document.querySelector('.nav-logout')?.addEventListener('click', (e) => {
-  e.preventDefault();
-  localStorage.removeItem('token');
-  localStorage.removeItem('tipoUsuario');
-  window.location.href = '/index.html';
-});
+// O logout (com confirmação) agora é centralizado em notification-center.js,
+// que é carregado em todas as páginas do sistema.
 
 carregarTurmas();
 carregarProfessores();

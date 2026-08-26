@@ -24,6 +24,46 @@
   }
 
   // =========================================================
+  // LOGOUT (botão "Sair" do menu lateral, presente em todas as páginas)
+  // =========================================================
+
+  async function confirmarSaida() {
+    // Usa SweetAlert2 quando disponível (a maioria das páginas carrega),
+    // e cai para o confirm() nativo do navegador nas páginas que não carregam.
+    if (window.Swal) {
+      const resultado = await window.Swal.fire({
+        title: 'Sair do sistema?',
+        text: 'Você precisará fazer login novamente para continuar.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Sair',
+        cancelButtonText: 'Cancelar',
+        heightAuto: false
+      });
+      return resultado.isConfirmed;
+    }
+
+    return window.confirm('Deseja realmente sair do sistema?');
+  }
+
+  function configurarLogout() {
+    document.querySelectorAll('.nav-logout').forEach((link) => {
+      link.addEventListener('click', async (event) => {
+        event.preventDefault();
+
+        const confirmou = await confirmarSaida();
+        if (!confirmou) return;
+
+        localStorage.removeItem('token');
+        localStorage.removeItem('tipoUsuario');
+        localStorage.removeItem('turmaInfo');
+
+        window.location.href = '/index.html';
+      });
+    });
+  }
+
+  // =========================================================
   // NOTIFICAÇÕES LOCAIS
   // =========================================================
 
@@ -1209,6 +1249,8 @@
       console.log(
         '[notificações] Inicializando central...'
       );
+
+      configurarLogout();
 
       ensureServiceWorker();
 

@@ -104,6 +104,92 @@ async function criarProfessor(req, res) {
   }
 }
 
+// funcao para o usuário logado (professor ou coordenadora) ver seus próprios dados
+async function meuPerfil(req, res) {
+  try {
+    const id = req.usuario.id;
+
+    const [rows] = await pool.query(
+      `SELECT id, nome, email, admin, created_at, updated_at FROM professores WHERE id = ? LIMIT 1`,
+      [id],
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Usuário não encontrado" });
+    }
+
+    return res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Erro ao buscar perfil" });
+  }
+}
+
+// funcao para o usuário logado (professor ou coordenadora) atualizar seus próprios
+// dados (nome, email, senha) — nunca o campo "admin", pra ninguém se autopromover
+async function atualizarMeuPerfil(req, res) {
+  try {
+    const id = req.usuario.id;
+    const { nome, email, senha } = req.body;
+
+    const campos = [];
+    const valores = [];
+
+    if (nome !== undefined) {
+      const nomeNorm = String(nome).trim();
+      if (!nomeNorm) {
+        return res.status(400).json({ error: "nome não pode ficar vazio" });
+      }
+      campos.push("nome = ?");
+      valores.push(nomeNorm);
+    }
+
+    if (email !== undefined) {
+      const emailNorm = String(email).trim().toLowerCase();
+      if (!validarEmail(emailNorm)) {
+        return res.status(400).json({ error: "email inválido" });
+      }
+      campos.push("email = ?");
+      valores.push(emailNorm);
+    }
+
+    if (senha !== undefined && String(senha).length > 0) {
+      if (String(senha).length < 6) {
+        return res
+          .status(400)
+          .json({ error: "senha deve ter pelo menos 6 caracteres" });
+      }
+      const senhaHash = await bcrypt.hash(String(senha), 10);
+      campos.push("senha = ?");
+      valores.push(senhaHash);
+    }
+
+    if (campos.length === 0) {
+      return res.status(400).json({ error: "Nenhum campo para atualizar" });
+    }
+
+    valores.push(id);
+
+    await pool.query(
+      `UPDATE professores SET ${campos.join(", ")} WHERE id = ?`,
+      valores,
+    );
+
+    const [atualizado] = await pool.query(
+      `SELECT id, nome, email, admin, created_at, updated_at FROM professores WHERE id = ?`,
+      [id],
+    );
+
+    return res.json(atualizado[0]);
+  } catch (err) {
+    if (err.code === "ER_DUP_ENTRY") {
+      return res.status(400).json({ error: "Nome ou email já cadastrado" });
+    }
+    console.error(err);
+    return res.status(500).json({ error: "Erro ao atualizar perfil" });
+  }
+}
+
 // funcao para listar todos os professores (somente coordenadora)
 async function listarProfessores(req, res) {
   try {
@@ -239,6 +325,8 @@ async function deletarProfessor(req, res) {
 
 module.exports = {
   login,
+  meuPerfil,
+  atualizarMeuPerfil,
   criarProfessor,
   listarProfessores,
   buscarProfessor,

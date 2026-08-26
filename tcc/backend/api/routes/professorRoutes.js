@@ -8,6 +8,11 @@ const { verificarToken, apenasCoordenadora } = require('../middlewares/authMiddl
 // Rota pública - login do professor
 router.post('/login', professorController.login);
 
+// Perfil do usuário logado (qualquer professor ou coordenadora) — só precisa de token,
+// não precisa ser coordenadora, já que cada um só mexe nos próprios dados
+router.get('/me', verificarToken, professorController.meuPerfil);
+router.put('/me', verificarToken, professorController.atualizarMeuPerfil);
+
 // A partir daqui, todas as rotas exigem token válido e perfil de coordenadora (admin = 1)
 router.use(verificarToken, apenasCoordenadora);
 

@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
   <link rel="stylesheet" href="../../css/coordenador.css">
   <link rel="shortcut icon" href="../../assets/images/logo.png" type="image/x-icon">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 <script>if(localStorage.getItem("theme")==="dark"){document.body.classList.add("dark-theme");}</script> 
@@ -93,21 +94,37 @@
 
         <div class="config-item">
           <span>Nome do Coordenador</span>
-          <input type="text" value="Coordenador">
+          <input type="text" id="config-nome" placeholder="Carregando...">
         </div>
 
         <div class="config-item">
           <span>Email</span>
-          <input type="email" value="coordenador@escola.com">
+          <input type="email" id="config-email" placeholder="Carregando...">
+        </div>
+
+        <div class="config-item config-item-acao">
+          <button class="btn-config" id="btn-salvar-conta">Salvar alterações</button>
         </div>
       </div>
 
       <div class="config-section">
         <h3>Segurança</h3>
 
-        <button class="btn-config">
-          Alterar Senha
-        </button>
+        <div class="config-item">
+          <span>Nova senha</span>
+          <input type="password" id="config-nova-senha" placeholder="Mínimo 6 caracteres">
+        </div>
+
+        <div class="config-item">
+          <span>Confirmar nova senha</span>
+          <input type="password" id="config-confirmar-senha" placeholder="Repita a nova senha">
+        </div>
+
+        <div class="config-item config-item-acao">
+          <button class="btn-config" id="btn-alterar-senha">
+            Alterar Senha
+          </button>
+        </div>
       </div>
 
     </div>

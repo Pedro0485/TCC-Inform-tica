@@ -123,7 +123,8 @@ a{
     }
 
     .config-item input[type="text"],
-    .config-item input[type="email"] {
+    .config-item input[type="email"],
+    .config-item input[type="password"] {
       width: 100%;
     }
 
@@ -424,11 +425,16 @@ a{
 }
 
 .config-item input[type="text"],
-.config-item input[type="email"]{
+.config-item input[type="email"],
+.config-item input[type="password"]{
     padding:10px;
     border:1px solid #ccc;
     border-radius:8px;
     width:250px;
+}
+
+.config-item-acao{
+    justify-content:flex-end;
 }
 
 .btn-config{
@@ -490,6 +496,7 @@ a{
 
 body.dark-theme{
     background:#121212;
+    color:#d6d6d6;
 }
 
 body.dark-theme .sidebar{
@@ -629,6 +636,12 @@ body.dark-theme .notification-preview-delete:hover { background:#3b2529; color:#
 body.dark-theme .notification-preview-item.unread,
 body.dark-theme .notification-card.unread { background:#3b2529; }
 body.dark-theme .notification-badge { border-color:#232323; }
+body.dark-theme .notification-card-content p { color:#bbb; }
+body.dark-theme .notification-card-content time { color:#888; }
+body.dark-theme .notification-card-icon { background:#3b2529; }
+body.dark-theme .notification-action-btn:not(.primary) { background:#2b2b2b; color:#ddd; }
+body.dark-theme .notification-action-btn:not(.primary):hover { background:#333; }
+body.dark-theme .notification-action-btn.primary { background:#e11233; color:#fff; }
 
 /* ===== Modal de detalhes da notificação ===== */
 .notification-detail-overlay {

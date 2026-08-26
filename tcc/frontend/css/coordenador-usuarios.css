@@ -116,5 +116,25 @@
 
 /* ── Tema escuro ── */
 body.dark-theme .tabela-usuarios th, body.dark-theme .tabela-usuarios td { border-color: #333; }
+body.dark-theme .tabela-usuarios th { color: #999; }
+body.dark-theme .tabela-usuarios td { color: #eee; }
+
+body.dark-theme .btn-icon { color: #aaa; }
+body.dark-theme .btn-icon:hover { background: #2b2b2b; color: #eee; }
+body.dark-theme .btn-icon.btn-danger:hover { background: #3b2529; color: #ff5c76; }
+
+body.dark-theme .badge-admin.sim { background: #1c3a26; color: #6fd48c; }
+body.dark-theme .badge-admin.nao { background: #2b2b2b; color: #aaa; }
+
 body.dark-theme .modal { background: #1e1e1e; }
 body.dark-theme .modal-header h3 { color: #eee; }
+body.dark-theme .modal-close { color: #aaa; }
+body.dark-theme .modal-footer { border-color: #333; }
+
+body.dark-theme .btn-cancel,
+body.dark-theme .btn-save {
+  background: #2b2b2b;
+  border-color: #444;
+  color: #ddd;
+}
+body.dark-theme .btn-save:hover { background-color: #e11233; color: #fff; }
