@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+  <link rel="stylesheet" href="../../css/coordenador.css">
+  <link rel="shortcut icon" href="../../assets/images/logo.png" type="image/x-icon">
+</head>
+<body>
+<script>if(localStorage.getItem("theme")==="dark"){document.body.classList.add("dark-theme");}</script> 
+<div class="page">
+  <aside class="sidebar">
+
+    <div class="logo">
+      <i class="ti ti-school"></i>
+      <span>Coordenador</span>
+    </div>
+  
+    <nav>
+      <a class="nav-item active" href="coordenador-home.html">
+        <i class="ti ti-bell"></i>
+        <span>Notificações</span>
+      </a>
+  
+      <a class="nav-item" href="coordenador-calendario.html">
+        <i class="ti ti-calendar"></i>
+        <span>Calendário</span>
+      </a>
+  
+      <a class="nav-item" href="coordenador-salas.html">
+        <i class="ti ti-door"></i>
+        <span>Salas</span>
+      </a>
+
+      <a class="nav-item" href="coordenador-usuarios.html">
+        <i class="ti ti-users"></i>
+        <span>Usuários</span>
+      </a>
+  
+      <a class="nav-item" href="coordenador-configuracoes.html">
+        <i class="ti ti-settings"></i>
+        <span>Configurações</span>
+      </a>
+
+      <a class="nav-item nav-logout" href="#">
+        <i class="ti ti-logout"></i>
+        <span>Sair</span>
+      </a>
+
+    </nav>
+  
+    
+  
+  </aside>
+ 
+  <main class="main">
+    <div class="card notification-create-card">
+      <div class="notification-create-heading">
+        <div>
+          <h2 class="card-title">Criar nova notificação</h2>
+          <p>Envie avisos para professores, turmas ou para todos os usuários.</p>
+        </div>
+      </div>
+      <form class="notification-create-form" data-create-notification-form>
+        <div class="notification-form-grid">
+          <label>
+            <span>Título</span>
+            <input type="text" name="titulo" maxlength="150" placeholder="Ex.: Reunião pedagógica" required>
+          </label>
+          <label>
+            <span>Destinatários</span>
+            <select name="destino_tipo" required>
+              <option value="todos">Todos</option>
+              <option value="professores">Todos os professores</option>
+              <option value="turmas">Todas as turmas / alunos</option>
+              <option value="professor">Professor específico</option>
+              <option value="turma">Turma específica</option>
+            </select>
+          </label>
+          <label data-specific-target-wrap hidden>
+            <span>Selecionar destinatário</span>
+            <select name="destino_id"></select>
+          </label>
+        </div>
+        <label class="notification-message-field">
+          <span>Mensagem</span>
+          <textarea name="mensagem" rows="4" maxlength="1500" placeholder="Digite a mensagem que será exibida para os usuários..." required></textarea>
+        </label>
+        <div class="notification-create-footer">
+          <small><i class="ti ti-info-circle"></i> A notificação fica salva no banco e aparece no sino dos destinatários.</small>
+          <button class="notification-action-btn primary" type="submit"><i class="ti ti-send"></i> Enviar notificação</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2 class="card-title">Notificações Recentes</h2>
+      <div class="notifications-actions">
+        <button class="notification-action-btn primary" type="button" data-notification-permission>Ativar notificações no dispositivo</button>
+        <button class="notification-action-btn" type="button" data-notification-read-all>Marcar todas como lidas</button>
+        <button class="notification-action-btn" type="button" data-notification-clear>Limpar</button>
+      </div>
+      <div class="notifications-list" data-notifications-list>
+        <div class="empty-state">
+          <i class="ti ti-bell-off"></i>
+          <span>Nenhuma notificação recente</span>
+        </div>
+      </div>
+    </div> 
+  </main>
+</div>
+ 
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="../../js/notification-center.js"></script>
+  <script src="../../js/coordenador-notificacoes.js"></script>
+</body>
+</html>
