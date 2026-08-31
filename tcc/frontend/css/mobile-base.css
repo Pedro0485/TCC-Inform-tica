@@ -1,0 +1,934 @@
+/* ============================================================
+   MOBILE BASE - Compartilhado entre todos os perfis
+   ============================================================ */
+
+/* Reset e configurações base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  html {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+  }
+  
+  body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    background: #e8e8e8;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    color: #222;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* ============================================================
+     LAYOUT PRINCIPAL
+     ============================================================ */
+  
+  .page {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+  
+  /* ============================================================
+     SIDEBAR - Mobile First (colapsada)
+     ============================================================ */
+  
+  .sidebar {
+    width: 64px;
+    min-width: 64px;
+    background: #ffffff;
+    border-right: 1px solid #e0e0e0;
+    border-radius: 0;
+    margin: 0;
+    padding: 0.75rem 0;
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100dvh;
+    overflow-y: auto;
+    z-index: 100;
+    transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .sidebar.expanded {
+    width: 240px;
+    min-width: 240px;
+  }
+  
+  .logo {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 0 16px 16px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #222;
+    border-bottom: 1px solid #eaeaea;
+    margin-bottom: 12px;
+  }
+  
+  .sidebar.expanded .logo {
+    display: flex;
+  }
+  
+  .logo i {
+    font-size: 26px;
+  }
+  
+  .sidebar nav {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    padding: 0 6px;
+  }
+  
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    text-decoration: none;
+    color: #555;
+    font-size: 13px;
+    transition: background 0.15s, color 0.15s;
+    cursor: pointer;
+    min-height: 44px;
+    min-width: 44px;
+    justify-content: center;
+  }
+  
+  .sidebar.expanded .nav-item {
+    justify-content: flex-start;
+    padding: 10px 14px;
+  }
+  
+  .nav-item i {
+    font-size: 20px;
+    flex-shrink: 0;
+    width: 24px;
+    text-align: center;
+  }
+  
+  .nav-item span {
+    display: none;
+    white-space: nowrap;
+  }
+  
+  .sidebar.expanded .nav-item span {
+    display: inline;
+  }
+  
+  .nav-item:hover {
+    background: #f3f4f6;
+  }
+  
+  .nav-item.active {
+    background: #e11233;
+    color: white;
+  }
+  
+  .nav-item.active:hover {
+    background: #bd0f2c;
+  }
+  
+  .nav-logout {
+    margin-top: auto;
+    border-top: 1px solid #eaeaea;
+    padding-top: 10px;
+  }
+  
+  .sidebar-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    margin: 0 12px 12px;
+    border-radius: 10px;
+    color: #555;
+    font-size: 22px;
+    transition: background 0.15s;
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .sidebar-toggle:hover {
+    background: #f3f4f6;
+  }
+  
+  .sidebar.expanded .sidebar-toggle {
+    align-self: flex-start;
+  }
+  
+  /* ============================================================
+     CONTEÚDO PRINCIPAL
+     ============================================================ */
+  
+  .main {
+    flex: 1;
+    padding: 12px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    align-content: start;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  
+  /* ============================================================
+     CARDS
+     ============================================================ */
+  
+  .card {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 16px;
+    min-height: auto;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  
+  .card-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: #444;
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  
+  /* ============================================================
+     ESTADOS VAZIOS
+     ============================================================ */
+  
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    color: #aaa;
+    font-size: 13px;
+    gap: 10px;
+    text-align: center;
+  }
+  
+  .empty-state i {
+    font-size: 36px;
+    opacity: 0.4;
+  }
+  
+  /* ============================================================
+     CALENDÁRIO - Mobile First
+     ============================================================ */
+  
+  #calendar {
+    background: transparent;
+    padding: 4px;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  
+  .fc {
+    max-width: 100%;
+    font-size: 13px;
+  }
+  
+  .fc .fc-toolbar {
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  
+  .fc .fc-toolbar-title {
+    font-size: 1rem !important;
+  }
+  
+  .fc .fc-button {
+    padding: 0.4em 0.65em !important;
+    font-size: 12px !important;
+    min-height: 36px;
+    min-width: 36px;
+    border-radius: 8px !important;
+  }
+  
+  .fc .fc-daygrid-day-number {
+    font-size: 12px;
+  }
+  
+  .fc .fc-col-header-cell-cushion {
+    font-size: 11px;
+    font-weight: 600;
+  }
+  
+  .fc .fc-daygrid-day-frame {
+    min-height: 44px;
+  }
+  
+  /* ============================================================
+     NOTIFICAÇÕES
+     ============================================================ */
+  
+  .notification-fab {
+    position: fixed;
+    bottom: 18px;
+    right: 18px;
+    z-index: 2200;
+    width: 52px;
+    height: 52px;
+    border: 0;
+    border-radius: 16px;
+    background: #fff;
+    color: #4b4b4b;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+  
+  .notification-fab:active {
+    transform: scale(0.92);
+  }
+  
+  .notification-fab i {
+    font-size: 24px;
+  }
+  
+  .notification-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: #e11233;
+    color: #fff;
+    border: 2px solid #fff;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+  }
+  
+  .notification-badge.show {
+    display: flex;
+  }
+  
+  .notification-popover {
+    position: fixed;
+    bottom: 80px;
+    right: 16px;
+    z-index: 2199;
+    width: calc(100vw - 32px);
+    max-width: 380px;
+    background: #fff;
+    border: 1px solid #e7e7e7;
+    border-radius: 16px;
+    box-shadow: 0 16px 45px rgba(0,0,0,0.17);
+    padding: 14px;
+    display: none;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+  
+  .notification-popover.open {
+    display: block;
+  }
+  
+  .notification-popover-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  
+  .notification-popover-header strong {
+    color: #333;
+    font-size: 15px;
+  }
+  
+  .notification-preview-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 300px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .notification-preview-item {
+    padding: 10px 12px;
+    border-radius: 11px;
+    background: #f7f7f7;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: 13px;
+  }
+  
+  .notification-preview-item.unread {
+    background: #fff1f3;
+  }
+  
+  .notification-preview-item i {
+    color: #e11233;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+  
+  .notification-preview-item strong {
+    display: block;
+    font-size: 13px;
+    color: #333;
+  }
+  
+  .notification-preview-item span {
+    display: block;
+    font-size: 11px;
+    color: #777;
+    margin-top: 3px;
+    line-height: 1.4;
+  }
+  
+  .notifications-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .notification-card {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 14px;
+    border: 1px solid #ededed;
+    border-radius: 12px;
+    background: #fff;
+  }
+  
+  .notification-card.unread {
+    border-color: #f3b7c1;
+    background: #fff8f9;
+  }
+  
+  .notification-card-icon {
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    border-radius: 12px;
+    background: #fdecef;
+    color: #e11233;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .notification-card-icon i {
+    font-size: 18px;
+  }
+  
+  .notification-card-content {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .notification-card-content h3 {
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 4px;
+  }
+  
+  .notification-card-content p {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.45;
+    word-wrap: break-word;
+  }
+  
+  .notification-card-content time {
+    display: block;
+    margin-top: 6px;
+    font-size: 10px;
+    color: #999;
+  }
+  
+  .notifications-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  
+  .notification-action-btn {
+    border: 0;
+    border-radius: 9px;
+    padding: 8px 14px;
+    font-size: 11px;
+    cursor: pointer;
+    background: #f1f1f1;
+    color: #444;
+    min-height: 40px;
+    font-weight: 500;
+    transition: background 0.15s;
+    touch-action: manipulation;
+  }
+  
+  .notification-action-btn.primary {
+    background: #e11233;
+    color: #fff;
+  }
+  
+  .notification-action-btn:active {
+    transform: scale(0.96);
+  }
+  
+  /* ============================================================
+     CONFIGURAÇÕES
+     ============================================================ */
+  
+  .config-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .config-section {
+    background: #f8f9fa;
+    padding: 16px;
+    border-radius: 12px;
+  }
+  
+  .config-section h3 {
+    margin-bottom: 14px;
+    color: #333;
+    font-size: 15px;
+  }
+  
+  .config-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  
+  .config-item:last-child {
+    margin-bottom: 0;
+  }
+  
+  .config-item > span {
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  .config-item input[type="text"],
+  .config-item input[type="email"] {
+    padding: 12px 14px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    width: 100%;
+    font-size: 15px;
+    min-height: 44px;
+    background: #fff;
+  }
+  
+  .config-item:has(.switch) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .config-item:has(.switch) > span {
+    font-size: 14px;
+  }
+  
+  .switch {
+    position: relative;
+    width: 52px;
+    height: 28px;
+    flex-shrink: 0;
+  }
+  
+  .switch input {
+    display: none;
+  }
+  
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: #ccc;
+    border-radius: 30px;
+    transition: 0.3s;
+  }
+  
+  .slider:before {
+    content: "";
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    left: 3px;
+    top: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: 0.3s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  
+  .switch input:checked + .slider {
+    background: #e11233;
+  }
+  
+  .switch input:checked + .slider:before {
+    transform: translateX(24px);
+  }
+  
+  .btn-config {
+    background: #e11233;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    min-height: 48px;
+    width: 100%;
+    transition: background 0.15s;
+    touch-action: manipulation;
+  }
+  
+  .btn-config:active {
+    transform: scale(0.97);
+  }
+  
+  /* ============================================================
+     MODAIS - Mobile First
+     ============================================================ */
+  
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.50);
+    z-index: 1000;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 16px;
+    animation: modalFadeIn 0.25s ease;
+  }
+  
+  .modal-overlay.open {
+    display: flex;
+  }
+  
+  @keyframes modalFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .modal {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px;
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.30);
+    animation: modalSlideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  @keyframes modalSlideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px) scale(0.97);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  
+  .modal-header h3 {
+    font-size: 17px;
+    font-weight: 700;
+    color: #222;
+  }
+  
+  .modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #888;
+    line-height: 1;
+    transition: color 0.15s;
+    min-height: 44px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .modal-close:active {
+    transform: scale(0.9);
+  }
+  
+  .modal-footer {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 8px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #eee;
+  }
+  
+  .btn-cancel,
+  .btn-save {
+    padding: 12px 20px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    background: #f5f5f5;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+    color: #555;
+    min-height: 48px;
+    text-align: center;
+    transition: background 0.15s;
+    touch-action: manipulation;
+    width: 100%;
+  }
+  
+  .btn-cancel:active,
+  .btn-save:active {
+    transform: scale(0.97);
+  }
+  
+  .btn-save {
+    background: #e11233;
+    color: #fff;
+    border-color: #e11233;
+  }
+  
+  .btn-save:hover {
+    background: #bd0f2c;
+  }
+  
+  /* ============================================================
+     TEMA ESCURO
+     ============================================================ */
+  
+  body.dark-theme {
+    background: #121212;
+  }
+  
+  body.dark-theme .sidebar {
+    background: #1c1c1c;
+    border-color: #333;
+  }
+  
+  body.dark-theme .logo {
+    color: white;
+    border-color: #333;
+  }
+  
+  body.dark-theme .nav-item {
+    color: #d6d6d6;
+  }
+  
+  body.dark-theme .nav-item:hover {
+    background: #2b2b2b;
+  }
+  
+  body.dark-theme .nav-item.active {
+    background: #e11233;
+  }
+  
+  body.dark-theme .card {
+    background: #1c1c1c;
+  }
+  
+  body.dark-theme .card-title,
+  body.dark-theme .config-section h3,
+  body.dark-theme .config-item > span {
+    color: #eee;
+  }
+  
+  body.dark-theme .config-section {
+    background: #262626;
+  }
+  
+  body.dark-theme input,
+  body.dark-theme select,
+  body.dark-theme textarea {
+    background: #2a2a2a;
+    color: #eee;
+    border-color: #444;
+  }
+  
+  body.dark-theme .notification-fab,
+  body.dark-theme .notification-popover,
+  body.dark-theme .notification-card {
+    background: #232323;
+    color: #eee;
+    border-color: #3a3a3a;
+  }
+  
+  body.dark-theme .notification-fab {
+    color: #eee;
+  }
+  
+  body.dark-theme .notification-popover-header strong,
+  body.dark-theme .notification-preview-item strong,
+  body.dark-theme .notification-card-content h3 {
+    color: #eee;
+  }
+  
+  body.dark-theme .notification-preview-item {
+    background: #303030;
+  }
+  
+  body.dark-theme .notification-preview-item.unread,
+  body.dark-theme .notification-card.unread {
+    background: #3b2529;
+  }
+  
+  body.dark-theme .notification-badge {
+    border-color: #232323;
+  }
+  
+  body.dark-theme .modal {
+    background: #1e1e1e;
+  }
+  
+  body.dark-theme .modal-header h3 {
+    color: #eee;
+  }
+  
+  /* ============================================================
+     BREAKPOINTS
+     ============================================================ */
+  
+  /* Tablet e acima */
+  @media (min-width: 768px) {
+    .sidebar {
+      width: 220px;
+      min-width: 220px;
+      border-radius: 12px;
+      margin: 12px 0 12px 12px;
+      padding: 1.25rem 0;
+      position: relative;
+      height: auto;
+      min-height: calc(100vh - 24px);
+    }
+  
+    .sidebar-toggle {
+      display: none;
+    }
+  
+    .logo {
+      display: flex;
+    }
+  
+    .nav-item {
+      justify-content: flex-start;
+      padding: 10px 16px;
+    }
+  
+    .nav-item span {
+      display: inline;
+    }
+  
+    .main {
+      padding: 1.5rem;
+      gap: 1.25rem;
+    }
+  
+    .card {
+      padding: 1.25rem;
+    }
+  
+    .card-title {
+      font-size: 18px;
+    }
+  
+    .modal-overlay {
+      align-items: center;
+    }
+  
+    .modal {
+      padding: 1.75rem;
+      max-width: 700px;
+    }
+  
+    .modal-footer {
+      flex-direction: row;
+    }
+  
+    .btn-cancel,
+    .btn-save {
+      width: auto;
+    }
+  
+    .notification-fab {
+      top: 22px;
+      bottom: auto;
+      right: 24px;
+    }
+  
+    .notification-popover {
+      top: 76px;
+      bottom: auto;
+      right: 24px;
+    }
+  
+    .config-item {
+      flex-direction: row;
+      align-items: center;
+      gap: 15px;
+    }
+  
+    .config-item input[type="text"],
+    .config-item input[type="email"] {
+      width: 250px;
+    }
+  
+    .btn-config {
+      width: auto;
+    }
+  }
