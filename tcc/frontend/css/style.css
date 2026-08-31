@@ -134,6 +134,31 @@ body{
     appearance: none;
 }
 
+.senha-wrapper{
+    position: relative;
+    width: 100%;
+}
+
+.senha-wrapper input{
+    width: 100%;
+    padding-right: 40px;
+}
+
+.senha-wrapper i{
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    color: #888;
+    cursor: pointer;
+    font-size: 14px;
+    transition: color 0.2s ease-in-out;
+}
+
+.senha-wrapper i:hover{
+    color: #6b0919;
+}
+
 .form-container{
     position: absolute;
     top: 0;

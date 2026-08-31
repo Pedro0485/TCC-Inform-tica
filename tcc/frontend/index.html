@@ -44,7 +44,10 @@
                 <h1>PROFESSORES</h1>
                 <span>use seu email e senha</span>
                 <input type="email" id="loginEmail" name="email" placeholder="Email" required>
-                <input type="password" id="loginSenha" name="senha" placeholder="Senha" required>
+                <div class="senha-wrapper">
+                    <input type="password" id="loginSenha" name="senha" placeholder="Senha" required>
+                    <i class="fa-solid fa-eye" id="toggleSenha"></i>
+                </div>
                 <a href="#">Esqueceu sua senha?</a>
                 <div class="mensagem" id="msgLogin"></div>
                 <button type="submit" id="btnEntrarProfessor">Entrar</button>

@@ -7,6 +7,19 @@ const API_URL = '';
 const formProfessor = document.getElementById('entrarProfessorForm');
 const btnProfessor = document.getElementById('btnEntrarProfessor');
 
+// botao de mostrar/ocultar senha
+const toggleSenha = document.getElementById('toggleSenha');
+const inputSenha = document.getElementById('loginSenha');
+
+if (toggleSenha && inputSenha) {
+  toggleSenha.addEventListener('click', () => {
+    const senhaVisivel = inputSenha.type === 'text';
+    inputSenha.type = senhaVisivel ? 'password' : 'text';
+    toggleSenha.classList.toggle('fa-eye');
+    toggleSenha.classList.toggle('fa-eye-slash');
+  });
+}
+
 // funcao de validar email
 function validarEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
