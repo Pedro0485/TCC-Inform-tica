@@ -789,6 +789,29 @@ body.dark-theme .notification-create-form textarea { background:#151b28; border-
   text-transform: capitalize;
 }
 
+/* Grupo prev/title/next: setas coladas ao nome do mês, ex: <- agosto -> */
+.fc .fc-toolbar-chunk:has(.fc-toolbar-title) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+/* O FullCalendar agrupa prev+title+next numa div interna sem classe;
+   como o título é um <h2> (bloco), ele quebra a linha. Forçamos essa
+   div a virar flex-row para ficarem lado a lado. */
+.fc .fc-toolbar-chunk:has(.fc-toolbar-title) > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+.fc .fc-toolbar-chunk:has(.fc-toolbar-title) .fc-prev-button,
+.fc .fc-toolbar-chunk:has(.fc-toolbar-title) .fc-next-button {
+  margin: 0 !important;
+}
+
 .fc .fc-button {
   border: none !important;
   border-radius: 9px !important;

@@ -1,5 +1,13 @@
+const path = require('path');
+const { spawn } = require('child_process');
+
 const pool = require('../config/db');
 const { gerarTokenTurma } = require('../utils/jwt');
+
+// Caminho do script Python responsável por ler o PDF de horários
+const PYTHON_SCRIPT = path.join(__dirname, '..', '..', 'python', 'read_pdf.py');
+// Permite trocar o executável (ex: "python", "python3", ou caminho de uma venv) via .env
+const PYTHON_BIN = process.env.PYTHON_BIN || 'python3';
 
 const TURNOS_VALIDOS = ['matutino', 'integral', 'vespertino', 'noturno'];
 
@@ -208,6 +216,43 @@ async function loginTurma(req, res) {
   }
 }
 
+// Executa backend/python/read_pdf.py em um processo separado, passando o
+// caminho do arquivo salvo e o id da turma. O script le o PDF, extrai as
+// aulas e ele mesmo envia o resultado pra rota interna POST /turmas/horarios-lidos.
+// Aqui a gente so acompanha a saida do processo pra devolver status pro front.
+function executarLeituraPdf(caminhoArquivo, turmaId) {
+  return new Promise((resolve, reject) => {
+    const processo = spawn(PYTHON_BIN, [PYTHON_SCRIPT, caminhoArquivo, String(turmaId)]);
+
+    let saida = '';
+    let erro = '';
+
+    processo.stdout.on('data', (chunk) => { saida += chunk.toString(); });
+    processo.stderr.on('data', (chunk) => { erro += chunk.toString(); });
+
+    processo.on('error', (err) => {
+      // ex: python3 não encontrado no PATH do servidor
+      reject(new Error(`Não foi possível iniciar o script Python: ${err.message}`));
+    });
+
+    processo.on('close', (codigo) => {
+      let resultado = null;
+      try {
+        // o script sempre imprime uma linha de JSON no stdout (mesmo em erro)
+        resultado = JSON.parse(saida.trim().split('\n').pop());
+      } catch (parseErr) {
+        return reject(new Error(erro || saida || 'Saída inválida do script de leitura do PDF'));
+      }
+
+      if (codigo !== 0 || resultado.erro) {
+        return reject(new Error(resultado.erro || erro || 'Falha ao processar o PDF de horários'));
+      }
+
+      return resolve(resultado);
+    });
+  });
+}
+
 // funcao para receber o upload do arquivo de horarios (PDF/XLS/XLSX/CSV)
 // o arquivo ja chega salvo em disco (uploads/horarios) pelo multer antes desta funcao rodar
 async function uploadHorarios(req, res) {
@@ -216,15 +261,44 @@ async function uploadHorarios(req, res) {
       return res.status(400).json({ error: 'Nenhum arquivo enviado' });
     }
 
-    // TODO: quando o script Python estiver pronto (backend/python/read_pdf.py),
-    // acionar aqui via child_process passando req.file.path, e o Python devolve
-    // o texto/JSON extraido para a rota /turmas/horarios-lidos salvar no banco.
+    const { turma_id } = req.body;
 
-    return res.status(201).json({
-      mensagem: 'Arquivo de horários recebido com sucesso',
-      arquivo: req.file.filename,
-      caminho: req.file.path
-    });
+    if (!turma_id) {
+      return res.status(400).json({ error: 'Informe o turma_id da turma dona desse horário' });
+    }
+
+    const [turmaExiste] = await pool.query('SELECT id FROM turmas WHERE id = ? LIMIT 1', [turma_id]);
+    if (turmaExiste.length === 0) {
+      return res.status(404).json({ error: 'Turma não encontrada' });
+    }
+
+    // Somente PDF passa pelo script Python por enquanto (extração de XLS/XLSX/CSV
+    // pode ser adicionada depois em read_pdf.py ou em um script equivalente).
+    const ext = path.extname(req.file.originalname).toLowerCase();
+    if (ext !== '.pdf') {
+      return res.status(201).json({
+        mensagem: 'Arquivo recebido, mas apenas PDF é processado automaticamente no momento',
+        arquivo: req.file.filename,
+        caminho: req.file.path
+      });
+    }
+
+    try {
+      const resultado = await executarLeituraPdf(req.file.path, turma_id);
+      return res.status(201).json({
+        mensagem: 'Arquivo processado e horários cadastrados com sucesso',
+        arquivo: req.file.filename,
+        total_aulas: resultado.total_aulas
+      });
+    } catch (erroLeitura) {
+      // o arquivo já foi salvo em disco; o erro é só na extração/gravação dos horários
+      console.error('Erro ao ler PDF de horários:', erroLeitura.message);
+      return res.status(422).json({
+        error: 'Arquivo salvo, mas não foi possível extrair os horários automaticamente',
+        detalhe: erroLeitura.message,
+        arquivo: req.file.filename
+      });
+    }
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: 'Erro ao salvar o arquivo de horários' });

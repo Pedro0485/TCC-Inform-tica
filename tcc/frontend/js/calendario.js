@@ -312,13 +312,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
         headerToolbar: isMobile
             ? {
-                left: 'prev,next',
-                center: 'title',
-                right: 'today'
+                left: 'today',
+                center: 'prev,title,next',
+                right: ''
             }
             : {
-                left: 'prev,next today',
-                center: 'title',
+                left: 'today',
+                center: 'prev,title,next',
                 right: 'dayGridMonth,timeGridWeek'
             },
 
