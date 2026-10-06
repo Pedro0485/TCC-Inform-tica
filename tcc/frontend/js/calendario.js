@@ -339,47 +339,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         events: [
 
-            {
-                title: 'Prova de Matemática',
-
-                start: '2026-06-15',
-
-                backgroundColor: eventColors.prova,
-
-                borderColor: eventColors.prova,
-
-                extendedProps: {
-                    descricao: 'Avaliação de Matemática.'
-                }
-            },
-
-            {
-                title: 'Reunião Pedagógica',
-
-                start: '2026-06-20',
-
-                backgroundColor: eventColors.reuniao,
-
-                borderColor: eventColors.reuniao,
-
-                extendedProps: {
-                    descricao: 'Reunião pedagógica da equipe.'
-                }
-            },
-
-            {
-                title: 'Entrega de Boletins',
-
-                start: '2026-06-25',
-
-                backgroundColor: eventColors.entrega,
-
-                borderColor: eventColors.entrega,
-
-                extendedProps: {
-                    descricao: 'Data de entrega dos boletins.'
-                }
-            }
         ],
 
         dateClick: function (info) {

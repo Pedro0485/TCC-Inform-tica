@@ -92,3 +92,31 @@ CREATE TABLE IF NOT EXISTS notificacoes_lidas (
   UNIQUE KEY uk_notificacao_leitura (notificacao_id, destinatario_tipo, destinatario_id),
   CONSTRAINT fk_notificacoes_lidas_notificacao FOREIGN KEY (notificacao_id) REFERENCES notificacoes(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+-- ---------------------------------------------------------------
+-- notificacoes_destinos
+-- Uma notificação pode ter VÁRIOS destinatários. Cada linha é um destino:
+--   destino_tipo = 'todos' | 'professores' | 'turmas'  -> destino_id NULL
+--   destino_tipo = 'professor' | 'turma'                -> destino_id = id do professor/turma
+-- As colunas destino_tipo/destino_id da tabela notificacoes continuam
+-- existindo e guardam apenas o PRIMEIRO destino (compatibilidade).
+-- ---------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS notificacoes_destinos (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  notificacao_id INT NOT NULL,
+  destino_tipo ENUM('todos','professores','turmas','professor','turma') NOT NULL,
+  destino_id INT NOT NULL DEFAULT 0,  -- 0 = destino geral (sem id); evita NULL na chave única
+  CONSTRAINT fk_notificacoes_destinos_notificacao FOREIGN KEY (notificacao_id) REFERENCES notificacoes(id) ON DELETE CASCADE,
+  UNIQUE KEY uk_notificacao_destino (notificacao_id, destino_tipo, destino_id),
+  INDEX idx_notificacoes_destinos_busca (destino_tipo, destino_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Backfill: notificações criadas antes desta tabela passam a ter 1 destino
+-- (idempotente: só insere para quem ainda não tem nenhum destino cadastrado)
+INSERT INTO notificacoes_destinos (notificacao_id, destino_tipo, destino_id)
+SELECT n.id, n.destino_tipo, COALESCE(n.destino_id, 0)
+FROM notificacoes n
+WHERE NOT EXISTS (
+  SELECT 1 FROM notificacoes_destinos d WHERE d.notificacao_id = n.id
+);

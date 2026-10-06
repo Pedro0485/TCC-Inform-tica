@@ -33,6 +33,147 @@ function recipientFromUser(user) {
 
 /**
  * ============================================================
+ * FILTRO DE DESTINO (SQL)
+ * ============================================================
+ *
+ * Uma notificação pode ter vários destinos (tabela
+ * notificacoes_destinos). O usuário recebe a notificação se
+ * QUALQUER um dos destinos o alcança:
+ *
+ *   - 'todos'
+ *   - 'professores' (se for professor) ou 'turmas' (se for turma)
+ *   - 'professor' / 'turma' com o ID dele
+ *
+ * Retorna o trecho SQL (usa o alias "n" para notificacoes)
+ * e os parâmetros na ordem correta.
+ */
+function filtroDestinoUsuario(usuario) {
+  const ehTurma = usuario.tipo === 'turma';
+
+  return {
+    sql: `
+      EXISTS (
+        SELECT 1
+        FROM notificacoes_destinos d
+        WHERE d.notificacao_id = n.id
+          AND (
+            d.destino_tipo IN ('todos', ?)
+            OR (d.destino_tipo = ? AND d.destino_id = ?)
+          )
+      )
+    `,
+    params: [
+      ehTurma ? 'turmas' : 'professores',
+      ehTurma ? 'turma' : 'professor',
+      Number(usuario.id)
+    ]
+  };
+}
+
+
+/**
+ * ============================================================
+ * NORMALIZAR DESTINOS RECEBIDOS
+ * ============================================================
+ *
+ * Formato novo (vários destinatários):
+ *
+ *   destinos: [
+ *     { destino_tipo: 'professores' },
+ *     { destino_tipo: 'professor', destino_id: 3 },
+ *     { destino_tipo: 'professor', destino_id: 7 },
+ *     { destino_tipo: 'turma',     destino_id: 2 }
+ *   ]
+ *
+ * Também aceita { destino_tipo: 'professor', destino_ids: [3, 7] }.
+ *
+ * Formato antigo (continua funcionando):
+ *
+ *   destino_tipo: 'professor', destino_id: 3
+ *
+ * Retorna { destinos: [{ tipo, id }] } (sem repetições)
+ * ou { erro: 'mensagem' }.
+ */
+const DESTINOS_GERAIS = ['todos', 'professores', 'turmas'];
+const DESTINOS_ESPECIFICOS = ['professor', 'turma'];
+
+function normalizarDestinos(body) {
+
+  let itens;
+
+  if (Array.isArray(body.destinos)) {
+    itens = body.destinos;
+  } else {
+    // formato antigo: um único destino (destino_id pode ser um array)
+    itens = [{
+      destino_tipo: body.destino_tipo,
+      destino_id: body.destino_id
+    }];
+  }
+
+  if (!itens.length) {
+    return { erro: 'Selecione ao menos um destinatário' };
+  }
+
+  const vistos = new Set();
+  const destinos = [];
+
+  for (const item of itens) {
+
+    const tipo = item && item.destino_tipo;
+
+    if (DESTINOS_GERAIS.includes(tipo)) {
+
+      const chave = `${tipo}:0`;
+
+      if (!vistos.has(chave)) {
+        vistos.add(chave);
+        destinos.push({ tipo, id: 0 });
+      }
+
+      continue;
+    }
+
+    if (!DESTINOS_ESPECIFICOS.includes(tipo)) {
+      return { erro: 'Destinatário inválido' };
+    }
+
+    const brutos = []
+      .concat(item.destino_ids ?? [])
+      .concat(item.destino_id ?? []);
+
+    const ids = brutos.filter(
+      valor => valor !== '' && valor !== null && valor !== undefined
+    );
+
+    if (!ids.length) {
+      return { erro: 'Selecione o destinatário específico' };
+    }
+
+    for (const valor of ids) {
+
+      const id = Number(valor);
+
+      if (!Number.isInteger(id) || id <= 0) {
+        return { erro: 'ID do destinatário inválido' };
+      }
+
+      const chave = `${tipo}:${id}`;
+
+      if (!vistos.has(chave)) {
+        vistos.add(chave);
+        destinos.push({ tipo, id });
+      }
+    }
+  }
+
+  return { destinos };
+}
+
+
+
+/**
+ * ============================================================
  * LISTAR NOTIFICAÇÕES
  * ============================================================
  *
@@ -63,42 +204,19 @@ async function listar(req, res) {
     const usuarioId = Number(usuario.id);
 
     // ========================================================
-    // DEFINIR TIPO DE DESTINATÁRIO
+    // CONFIRMAR TIPO DE USUÁRIO
     // ========================================================
 
-    let destinatarioTipo;
-    let destinosGerais;
-    let destinoEspecifico;
-
-    if (usuario.tipo === 'turma') {
-
-      destinatarioTipo = 'turma';
-
-      destinosGerais = [
-        'todos',
-        'turmas'
-      ];
-
-      destinoEspecifico = 'turma';
-
-    } else if (usuario.tipo === 'professor') {
-
-      destinatarioTipo = 'professor';
-
-      destinosGerais = [
-        'todos',
-        'professores'
-      ];
-
-      destinoEspecifico = 'professor';
-
-    } else {
+    if (!['turma', 'professor'].includes(usuario.tipo)) {
 
       return res.status(403).json({
         error: 'Tipo de usuário não possui notificações'
       });
 
     }
+
+    const destinatarioTipo = usuario.tipo;
+    const filtro = filtroDestinoUsuario(usuario);
 
 
     // ========================================================
@@ -134,12 +252,7 @@ async function listar(req, res) {
         AND l.destinatario_id = ?
 
       WHERE
-        n.destino_tipo IN (?, ?)
-
-        OR (
-          n.destino_tipo = ?
-          AND n.destino_id = ?
-        )
+        ${filtro.sql}
 
       ORDER BY n.created_at DESC
 
@@ -151,11 +264,7 @@ async function listar(req, res) {
       destinatarioTipo,
       usuarioId,
 
-      destinosGerais[0],
-      destinosGerais[1],
-
-      destinoEspecifico,
-      usuarioId
+      ...filtro.params
     ];
 
 
@@ -226,16 +335,20 @@ async function listar(req, res) {
  * ============================================================
  *
  * Usado principalmente pela coordenadora.
+ *
+ * Aceita VÁRIOS destinatários em "destinos" (veja
+ * normalizarDestinos). O formato antigo com um único
+ * destino_tipo/destino_id continua funcionando.
  */
 async function criar(req, res) {
+
+  let conn;
 
   try {
 
     const {
       titulo,
       mensagem,
-      destino_tipo,
-      destino_id,
       tipo = 'info'
     } = req.body;
 
@@ -268,64 +381,49 @@ async function criar(req, res) {
     }
 
 
-    const destinosValidos = [
-      'todos',
-      'professores',
-      'turmas',
-      'professor',
-      'turma'
-    ];
+    // ========================================================
+    // DESTINATÁRIOS (um ou vários)
+    // ========================================================
 
+    const resultado = normalizarDestinos(req.body);
 
-    if (
-      !destinosValidos.includes(destino_tipo)
-    ) {
+    if (resultado.erro) {
 
       return res.status(400).json({
-        error: 'Destinatário inválido'
+        error: resultado.erro
       });
 
     }
 
+    const destinos = resultado.destinos;
+
 
     // ========================================================
-    // DESTINO ESPECÍFICO
+    // CONFIRMAR QUE PROFESSORES/TURMAS ESPECÍFICOS EXISTEM
     // ========================================================
 
-    const precisaId = [
-      'professor',
-      'turma'
-    ].includes(destino_tipo);
+    const confirmar = [
+      { tipo: 'professor', tabela: 'professores', nome: 'Professor' },
+      { tipo: 'turma', tabela: 'turmas', nome: 'Turma' }
+    ];
 
+    for (const { tipo: tipoDestino, tabela, nome } of confirmar) {
 
-    let destinoId = null;
+      const ids = destinos
+        .filter(d => d.tipo === tipoDestino)
+        .map(d => d.id);
 
+      if (!ids.length) continue;
 
-    if (precisaId) {
+      const [existentes] = await pool.query(
+        `SELECT id FROM ${tabela} WHERE id IN (?)`,
+        [ids]
+      );
 
-      if (
-        destino_id === undefined ||
-        destino_id === null ||
-        destino_id === ''
-      ) {
-
-        return res.status(400).json({
-          error: 'Selecione o destinatário específico'
-        });
-
-      }
-
-
-      destinoId = Number(destino_id);
-
-
-      if (
-        !Number.isInteger(destinoId) ||
-        destinoId <= 0
-      ) {
+      if (existentes.length !== ids.length) {
 
         return res.status(400).json({
-          error: 'ID do destinatário inválido'
+          error: `${nome} selecionado(a) não encontrado(a)`
         });
 
       }
@@ -353,10 +451,22 @@ async function criar(req, res) {
 
 
     // ========================================================
-    // INSERIR NO BANCO
+    // INSERIR NO BANCO (transação: notificação + destinos)
     // ========================================================
 
-    const [result] = await pool.query(
+    /*
+     * As colunas destino_tipo/destino_id de "notificacoes"
+     * guardam só o primeiro destino (compatibilidade).
+     * Quem decide quem recebe é a tabela notificacoes_destinos.
+     */
+
+    const primeiro = destinos[0];
+
+    conn = await pool.getConnection();
+
+    await conn.beginTransaction();
+
+    const [result] = await conn.query(
 
       `
         INSERT INTO notificacoes
@@ -379,14 +489,40 @@ async function criar(req, res) {
 
         tipo || 'info',
 
-        destino_tipo,
+        primeiro.tipo,
 
-        destinoId,
+        primeiro.id || null,
 
         criadoPor
       ]
 
     );
+
+
+    await conn.query(
+
+      `
+        INSERT INTO notificacoes_destinos
+        (
+          notificacao_id,
+          destino_tipo,
+          destino_id
+        )
+
+        VALUES ?
+      `,
+
+      [
+        destinos.map(d => [
+          result.insertId,
+          d.tipo,
+          d.id
+        ])
+      ]
+
+    );
+
+    await conn.commit();
 
 
     // ========================================================
@@ -423,7 +559,14 @@ async function criar(req, res) {
     );
 
 
-    const notificacao = rows[0];
+    const notificacao = {
+      ...rows[0],
+
+      destinos: destinos.map(d => ({
+        destino_tipo: d.tipo,
+        destino_id: d.id || null
+      }))
+    };
 
 
     console.log(
@@ -443,6 +586,10 @@ async function criar(req, res) {
 
   } catch (err) {
 
+    if (conn) {
+      await conn.rollback().catch(() => {});
+    }
+
     console.error(
       '[notificações] Erro ao criar:',
       err
@@ -451,6 +598,13 @@ async function criar(req, res) {
     return res.status(500).json({
       error: 'Erro ao criar notificação'
     });
+
+  } finally {
+
+    if (conn) {
+      conn.release();
+    }
+
   }
 }
 
@@ -615,62 +769,24 @@ async function marcarTodasLidas(req, res) {
 
 
     // ========================================================
-    // FILTROS
+    // BUSCAR NOTIFICAÇÕES DO USUÁRIO
     // ========================================================
 
-    let destinosGerais;
-    let destinoEspecifico;
-
-
-    if (usuario.tipo === 'turma') {
-
-      destinosGerais = [
-        'todos',
-        'turmas'
-      ];
-
-      destinoEspecifico = 'turma';
-
-    } else {
-
-      destinosGerais = [
-        'todos',
-        'professores'
-      ];
-
-      destinoEspecifico = 'professor';
-
-    }
-
-
-    // ========================================================
-    // BUSCAR NOTIFICAÇÕES
-    // ========================================================
+    const filtro = filtroDestinoUsuario(usuario);
 
     const [notificacoes] =
       await pool.query(
 
         `
-          SELECT id
+          SELECT n.id
 
-          FROM notificacoes
+          FROM notificacoes n
 
           WHERE
-            destino_tipo IN (?, ?)
-
-            OR (
-              destino_tipo = ?
-              AND destino_id = ?
-            )
+            ${filtro.sql}
         `,
 
-        [
-          destinosGerais[0],
-          destinosGerais[1],
-
-          destinoEspecifico,
-          usuarioId
-        ]
+        filtro.params
 
       );
 

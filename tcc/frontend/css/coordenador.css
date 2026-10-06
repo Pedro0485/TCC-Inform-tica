@@ -742,6 +742,47 @@ body.dark-theme .notification-detail-close:hover { background: #3f3f3f; }
 body.dark-theme .notification-create-form input,
 body.dark-theme .notification-create-form select,
 body.dark-theme .notification-create-form textarea { background:#151b28; border-color:rgba(255,255,255,.12); }
+/* ---- Destinatários múltiplos (checkboxes) ---- */
+.notification-create-form .notification-form-grid { grid-template-columns:1fr; }
+.notification-recipients { margin:16px 0 0; padding:14px 16px; border:1px solid rgba(100,116,139,.25); border-radius:12px; min-width:0; }
+.notification-recipients legend { padding:0 6px; font-weight:600; font-size:14px; }
+.notification-recipients legend small { font-weight:400; opacity:.65; }
+.recipient-options { display:flex; flex-wrap:wrap; gap:8px; }
+/* sobrescreve o estilo genérico de input/label do formulário (largura 100%, appearance:none etc.) */
+.notification-create-form .recipient-option,
+.notification-create-form .recipient-item { flex-direction:row; align-items:center; gap:8px; font-weight:500; cursor:pointer; }
+.notification-create-form input[type="checkbox"] { width:16px; height:16px; min-height:0; padding:0; margin:0; flex:0 0 auto; accent-color:#3b82f6; -webkit-appearance:checkbox; appearance:auto; box-shadow:none; border-radius:3px; cursor:pointer; }
+.notification-create-form .recipient-option { padding:8px 12px; border:1px solid rgba(100,116,139,.25); border-radius:999px; font-size:13px; transition:background .2s, border-color .2s; }
+.notification-create-form .recipient-option:has(input:checked) { background:rgba(59,130,246,.1); border-color:#3b82f6; }
+.notification-create-form .recipient-option:has(input:disabled) { opacity:.45; cursor:not-allowed; }
+.recipient-panel { margin-top:14px; border:1px solid rgba(100,116,139,.2); border-radius:12px; padding:12px; }
+.recipient-panel[hidden] { display:none; }
+.recipient-panel-head { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:10px; font-size:14px; }
+.recipient-panel-actions { display:flex; gap:6px; }
+.recipient-panel-actions button { border:1px solid rgba(100,116,139,.25); background:transparent; color:inherit; border-radius:8px; padding:5px 10px; font:inherit; font-size:12px; cursor:pointer; }
+.recipient-panel-actions button:hover { border-color:#3b82f6; color:#3b82f6; }
+.recipient-list { display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:4px 14px; max-height:220px; overflow-y:auto; }
+.notification-create-form .recipient-item { padding:6px 4px; font-size:14px; border-radius:8px; }
+.notification-create-form .recipient-item:hover { background:rgba(100,116,139,.08); }
+.recipient-empty { opacity:.65; font-size:13px; }
+.recipient-summary { display:block; margin-top:12px; opacity:.75; font-size:13px; }
+body.dark-theme .notification-recipients,
+body.dark-theme .recipient-panel,
+body.dark-theme .notification-create-form .recipient-option { border-color:rgba(255,255,255,.12); }
+body.dark-theme .notification-create-form .recipient-option:has(input:checked) { border-color:#3b82f6; }
+
+/* ---- Layout dos destinatários: opções na vertical (esquerda) e seleção de professores/turmas ao lado (direita) ---- */
+.notification-recipients { display:grid; grid-template-columns:minmax(230px, 280px) minmax(0, 1fr); column-gap:20px; row-gap:14px; align-items:start; }
+.recipient-options { grid-column:1; grid-row:1 / span 2; flex-direction:column; flex-wrap:nowrap; align-items:stretch; }
+.recipient-panel { grid-column:2; margin-top:0; min-width:0; }
+.recipient-summary { grid-column:1 / -1; grid-row:3; margin-top:0; }
+.recipient-list { max-height:260px; }
+@media (max-width: 760px) {
+  .notification-recipients { grid-template-columns:1fr; }
+  .recipient-options { grid-row:auto; }
+  .recipient-panel { grid-column:1; }
+  .recipient-summary { grid-row:auto; }
+}
 @media (max-width: 900px) { .notification-form-grid { grid-template-columns:1fr 1fr; } }
 @media (max-width: 640px) {
   .notification-form-grid { grid-template-columns:1fr; }

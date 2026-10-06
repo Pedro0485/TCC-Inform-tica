@@ -60,30 +60,68 @@
       <div class="notification-create-heading">
         <div>
           <h2 class="card-title">Criar nova notificação</h2>
-          <p>Envie avisos para professores, turmas ou para todos os usuários.</p>
+          <p>Envie avisos para um ou vários professores, turmas ou para todos os usuários.</p>
         </div>
       </div>
       <form class="notification-create-form" data-create-notification-form>
         <div class="notification-form-grid">
-          <label>
+          <label class="notification-title-field">
             <span>Título</span>
             <input type="text" name="titulo" maxlength="150" placeholder="Ex.: Reunião pedagógica" required>
           </label>
-          <label>
-            <span>Destinatários</span>
-            <select name="destino_tipo" required>
-              <option value="todos">Todos</option>
-              <option value="professores">Todos os professores</option>
-              <option value="turmas">Todas as turmas / alunos</option>
-              <option value="professor">Professor específico</option>
-              <option value="turma">Turma específica</option>
-            </select>
-          </label>
-          <label data-specific-target-wrap hidden>
-            <span>Selecionar destinatário</span>
-            <select name="destino_id"></select>
-          </label>
         </div>
+
+        <fieldset class="notification-recipients" data-recipients>
+          <legend>Destinatários <small>(marque um ou mais)</small></legend>
+
+          <div class="recipient-options">
+            <label class="recipient-option">
+              <input type="checkbox" name="destino_tipo" value="todos">
+              <span>Todos</span>
+            </label>
+            <label class="recipient-option">
+              <input type="checkbox" name="destino_tipo" value="professores">
+              <span>Todos os professores</span>
+            </label>
+            <label class="recipient-option">
+              <input type="checkbox" name="destino_tipo" value="turmas">
+              <span>Todas as turmas / alunos</span>
+            </label>
+            <label class="recipient-option">
+              <input type="checkbox" name="destino_tipo" value="professor">
+              <span>Professores específicos</span>
+            </label>
+            <label class="recipient-option">
+              <input type="checkbox" name="destino_tipo" value="turma">
+              <span>Turmas específicas</span>
+            </label>
+          </div>
+
+          <div class="recipient-panel" data-specific-panel="professor" hidden>
+            <div class="recipient-panel-head">
+              <strong>Selecione os professores</strong>
+              <span class="recipient-panel-actions">
+                <button type="button" data-select-all="professor">Marcar todos</button>
+                <button type="button" data-select-none="professor">Limpar</button>
+              </span>
+            </div>
+            <div class="recipient-list" data-specific-list="professor"></div>
+          </div>
+
+          <div class="recipient-panel" data-specific-panel="turma" hidden>
+            <div class="recipient-panel-head">
+              <strong>Selecione as turmas</strong>
+              <span class="recipient-panel-actions">
+                <button type="button" data-select-all="turma">Marcar todas</button>
+                <button type="button" data-select-none="turma">Limpar</button>
+              </span>
+            </div>
+            <div class="recipient-list" data-specific-list="turma"></div>
+          </div>
+
+          <small class="recipient-summary" data-recipient-summary></small>
+        </fieldset>
+
         <label class="notification-message-field">
           <span>Mensagem</span>
           <textarea name="mensagem" rows="4" maxlength="1500" placeholder="Digite a mensagem que será exibida para os usuários..." required></textarea>
