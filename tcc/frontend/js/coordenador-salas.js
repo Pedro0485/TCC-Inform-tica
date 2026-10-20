@@ -21,7 +21,19 @@ function getToken() {
   return localStorage.getItem('token');
 }
 
+const NOMES_CURSO = {
+  informatica: 'Informática',
+  edificacoes: 'Edificações',
+  mecatronica: 'Mecatrônica',
+  administracao: 'Administração',
+  desenvolvimento_de_sistemas: 'Desenvolvimento de Sistemas',
+  marketing: 'Marketing',
+  mecanica: 'Mecânica',
+  recursos_humanos: 'Recursos Humanos',
+};
+
 function capitalizar(txt) {
+  if (NOMES_CURSO[txt]) return NOMES_CURSO[txt];
   return txt.charAt(0).toUpperCase() + txt.slice(1);
 }
 
@@ -411,6 +423,175 @@ function salvarHorarios() {
 document.getElementById('modal-overlay').addEventListener('click', function(e) {
   if (e.target === this) fecharModal();
 });
+
+
+// ── Criar turma individualmente ───────────────────────────────────────────────
+const DIAS_GRADE = ['segunda','terca','quarta','quinta','sexta'];
+const DIAS_GRADE_LABEL = ['Segunda','Terça','Quarta','Quinta','Sexta'];
+const DURACAO_AULA_MIN = 50;
+
+function somarMinutos(hora, minutos) {
+  const [h, m] = hora.split(':').map(Number);
+  const total = h * 60 + m + minutos;
+  return String(Math.floor(total / 60)).padStart(2, '0') + ':' + String(total % 60).padStart(2, '0');
+}
+
+// Monta a grade de horários do modal conforme o turno escolhido
+function montarGradeCriar() {
+  const turno = document.getElementById('criar-turno').value;
+  const tbody = document.getElementById('criar-grade-body');
+  tbody.innerHTML = '';
+
+  HORARIOS[turno].forEach((hora) => {
+    const tr = document.createElement('tr');
+    const td0 = document.createElement('td');
+    td0.textContent = hora;
+    tr.appendChild(td0);
+
+    DIAS_GRADE.forEach((dia) => {
+      const td = document.createElement('td');
+      td.className = 'hora-cell';
+
+      const sel = document.createElement('select');
+      sel.dataset.hora = hora;
+      sel.dataset.dia = dia;
+      DISCIPLINAS.forEach((d) => {
+        const opt = document.createElement('option');
+        opt.value = d;
+        opt.textContent = d;
+        sel.appendChild(opt);
+      });
+      sel.onchange = function () {
+        td.classList.toggle('filled', this.value !== '— nenhuma —');
+      };
+
+      td.appendChild(sel);
+      tr.appendChild(td);
+    });
+
+    tbody.appendChild(tr);
+  });
+}
+
+function gerarCodigoTurma() {
+  // 6 dígitos, sem zero à esquerda (login só aceita números)
+  document.getElementById('criar-codigo').value = String(Math.floor(100000 + Math.random() * 900000));
+}
+
+function abrirModalCriarTurma() {
+  document.getElementById('criar-curso').value = '';
+  document.getElementById('criar-ano').value = '';
+  document.getElementById('criar-turno').value = turnoAtivo;
+  document.getElementById('criar-codigo').value = '';
+  montarGradeCriar();
+  gerarCodigoTurma();
+  document.getElementById('modal-criar-overlay').classList.add('open');
+}
+
+function fecharModalCriarTurma() {
+  document.getElementById('modal-criar-overlay').classList.remove('open');
+}
+
+document.getElementById('modal-criar-overlay').addEventListener('click', function (e) {
+  if (e.target === this) fecharModalCriarTurma();
+});
+
+async function criarTurma() {
+  const curso  = document.getElementById('criar-curso').value;
+  const ano    = document.getElementById('criar-ano').value;
+  const turno  = document.getElementById('criar-turno').value;
+  const codigo = document.getElementById('criar-codigo').value.trim();
+
+  const avisar = (text) => Swal.fire({
+    title: 'Ops', text, icon: 'warning', confirmButtonText: 'OK',
+    customClass: { popup: 'meu-alerta' },
+  });
+
+  if (!curso || !ano) return avisar('Selecione o curso e o ano da turma.');
+  if (!codigo) return avisar('Defina o código de login da turma.');
+  if (!/^\d+$/.test(codigo)) return avisar('O código de login deve conter apenas números.');
+
+  // Lê a grade: só vira "aula" o que tiver disciplina escolhida
+  const grade = {};      // formato do front: { hora: { dia: disciplina } }
+  const aulas = [];      // formato do banco
+  document.querySelectorAll('#criar-grade-body select').forEach((sel) => {
+    const { hora, dia } = sel.dataset;
+    if (!grade[hora]) grade[hora] = {};
+    grade[hora][dia] = sel.value;
+
+    if (sel.value && sel.value !== '— nenhuma —') {
+      aulas.push({
+        dia_semana: dia,
+        hora_inicio: hora,
+        hora_fim: somarMinutos(hora, DURACAO_AULA_MIN),
+        materia: sel.value,
+      });
+    }
+  });
+
+  const btn = document.getElementById('btn-criar-confirmar');
+  btn.disabled = true;
+  btn.textContent = 'Criando...';
+
+  const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` };
+
+  try {
+    // 1) cria a turma (nome + ano + código de login + turno)
+    const resTurma = await fetch(API_URL, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ nome: curso, ano: Number(ano), codigo, turno }),
+    });
+    const turma = await resTurma.json().catch(() => ({}));
+    if (!resTurma.ok) throw new Error(turma.error || 'Erro ao criar turma');
+
+    // 2) grava os horários dessa turma no banco
+    if (aulas.length > 0) {
+      const resHor = await fetch(`${API_URL}/${turma.id}/horarios`, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ horarios: aulas }),
+      });
+      if (!resHor.ok) {
+        const e = await resHor.json().catch(() => ({}));
+        throw new Error('Turma criada, mas os horários não foram salvos: ' + (e.error || resHor.status));
+      }
+    }
+
+    // mantém a grade também no formato local usado pela tela de Salas
+    const nomeExibicao = `${ano}º ${capitalizar(curso)}`;
+    horariosSalvos[nomeExibicao] = grade;
+    salvarHorariosLocal();
+
+    fecharModalCriarTurma();
+    dados = await buscarTurmas();
+    renderTodos();
+
+    // mostra a aba do turno da nova turma
+    const btnTurno = [...document.querySelectorAll('.turno-btn')]
+      .find((b) => b.textContent.trim().toLowerCase() === turno);
+    if (btnTurno) btnTurno.click();
+
+    await Swal.fire({
+      icon: 'success',
+      title: 'Turma criada!',
+      html: `<strong>${nomeExibicao}</strong> (${capitalizar(turno)})<br>
+             Login dos alunos: curso <strong>${capitalizar(curso)}</strong>, ano <strong>${ano}º</strong>,
+             código <strong>${codigo}</strong>`,
+      confirmButtonText: 'OK',
+      customClass: { popup: 'meu-alerta' },
+    });
+  } catch (err) {
+    console.error(err);
+    Swal.fire({
+      title: 'Erro', text: err.message, icon: 'error', confirmButtonText: 'OK',
+      customClass: { popup: 'meu-alerta' },
+    });
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Criar turma';
+  }
+}
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 async function init() {

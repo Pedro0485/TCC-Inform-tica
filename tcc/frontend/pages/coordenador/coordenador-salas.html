@@ -50,10 +50,16 @@
     <div class="card">
       <div class="card-header-row">
         <h2 class="card-title">Salas</h2>
-        <button class="btn-upload-horarios" onclick="abrirModalUpload()">
-          <i class="ti ti-upload"></i>
-          <span>Fazer upload de horários</span>
-        </button>
+        <div class="header-actions">
+          <button class="btn-criar-turma" onclick="abrirModalCriarTurma()">
+            <i class="ti ti-plus"></i>
+            <span>Criar turma</span>
+          </button>
+          <button class="btn-upload-horarios" onclick="abrirModalUpload()">
+            <i class="ti ti-upload"></i>
+            <span>Fazer upload de horários</span>
+          </button>
+        </div>
       </div>
 
       <!-- Seletor de turnos -->
@@ -101,6 +107,79 @@
     <div class="modal-footer">
       <button class="btn-cancel" onclick="fecharModal()">Cancelar</button>
       <button class="btn-save" onclick="salvarHorarios()">Salvar horários</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de criação de turma -->
+<div class="modal-overlay" id="modal-criar-overlay">
+  <div class="modal modal-criar">
+    <div class="modal-header">
+      <h3>Criar turma</h3>
+      <button class="modal-close" onclick="fecharModalCriarTurma()">✕</button>
+    </div>
+
+    <div class="criar-secao-titulo">1. Dados e login da turma</div>
+    <div class="criar-form-grid">
+      <label class="criar-campo">
+        <span>Curso</span>
+        <select id="criar-curso">
+          <option value="" selected disabled hidden>Selecione o curso</option>
+          <option value="informatica">Informática</option>
+          <option value="edificacoes">Edificações</option>
+          <option value="mecatronica">Mecatrônica</option>
+          <option value="administracao">Administração</option>
+          <option value="desenvolvimento_de_sistemas">Desenvolvimento de Sistemas</option>
+          <option value="marketing">Marketing</option>
+          <option value="mecanica">Mecânica</option>
+          <option value="recursos_humanos">Recursos Humanos</option>
+        </select>
+      </label>
+      <label class="criar-campo">
+        <span>Ano</span>
+        <select id="criar-ano">
+          <option value="" selected disabled hidden>Selecione o ano</option>
+          <option value="1">1º Ano</option>
+          <option value="2">2º Ano</option>
+          <option value="3">3º Ano</option>
+        </select>
+      </label>
+      <label class="criar-campo">
+        <span>Turno</span>
+        <select id="criar-turno" onchange="montarGradeCriar()">
+          <option value="matutino">Matutino</option>
+          <option value="integral" selected>Integral</option>
+          <option value="vespertino">Vespertino</option>
+          <option value="noturno">Noturno</option>
+        </select>
+      </label>
+      <label class="criar-campo">
+        <span>Código de login (só números)</span>
+        <div class="criar-codigo-row">
+          <input type="text" id="criar-codigo" inputmode="numeric" maxlength="20" placeholder="Ex: 123456" autocomplete="off" />
+          <button type="button" class="btn-gerar-codigo" onclick="gerarCodigoTurma()" title="Gerar código aleatório">
+            <i class="ti ti-refresh"></i>
+          </button>
+        </div>
+      </label>
+    </div>
+    <p class="criar-hint">Os alunos entram com <strong>curso + ano + código</strong> na tela de login de turmas.</p>
+
+    <div class="criar-secao-titulo">2. Horários da turma</div>
+    <div class="grade-wrapper">
+      <table class="grade">
+        <thead>
+          <tr>
+            <th>Horário</th><th>Segunda</th><th>Terça</th><th>Quarta</th><th>Quinta</th><th>Sexta</th>
+          </tr>
+        </thead>
+        <tbody id="criar-grade-body"></tbody>
+      </table>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="fecharModalCriarTurma()">Cancelar</button>
+      <button class="btn-save" id="btn-criar-confirmar" onclick="criarTurma()">Criar turma</button>
     </div>
   </div>
 </div>

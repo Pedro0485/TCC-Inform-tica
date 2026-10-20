@@ -19,6 +19,9 @@ router.get('/:id', turmaController.buscarTurma);
 router.put('/:id', turmaController.atualizarTurma);
 router.delete('/:id', turmaController.deletarTurma);
 
+// Grava (substitui) os horários de uma turma específica — usado ao criar a turma individualmente
+router.put('/:id/horarios', turmaController.salvarHorariosTurma);
+
 // Upload do arquivo de horários (PDF/XLS/XLSX/CSV) — salva em backend/uploads/horarios
 router.post('/upload-horarios', uploadHorarios.single('arquivo'), turmaController.uploadHorarios);
 

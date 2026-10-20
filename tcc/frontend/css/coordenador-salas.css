@@ -8,6 +8,54 @@
       margin-bottom: 0.5rem;
     }
 
+    .header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .btn-criar-turma {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 16px;
+      border: 1px solid #e11233;
+      border-radius: 10px;
+      background: transparent;
+      color: #e11233;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background .15s, color .15s, transform .1s;
+    }
+    .btn-criar-turma:hover { background: #e11233; color: #fff; transform: translateY(-1px); }
+    .btn-criar-turma i { font-size: 16px; }
+
+    /* ── Modal de criação de turma ── */
+    .modal-criar { width: min(820px, 95vw); }
+    .criar-secao-titulo {
+      font-size: 13px; font-weight: 700; color: #e11233;
+      text-transform: uppercase; letter-spacing: .04em;
+      margin: 4px 0 10px;
+    }
+    .criar-form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+    .criar-campo { display: flex; flex-direction: column; gap: 5px; font-size: 12.5px; color: #555; font-weight: 600; }
+    .criar-campo select, .criar-campo input {
+      padding: 9px 10px; border: 1px solid #ddd; border-radius: 8px;
+      font-size: 13px; font-family: inherit; background: #fff; color: #333; outline: none;
+      width: 100%; box-sizing: border-box;
+    }
+    .criar-campo select:focus, .criar-campo input:focus { border-color: #e11233; }
+    .criar-codigo-row { display: flex; gap: 6px; }
+    .btn-gerar-codigo {
+      border: 1px solid #ddd; background: #f5f5f5; border-radius: 8px;
+      padding: 0 10px; cursor: pointer; color: #555; font-size: 16px;
+      transition: background .15s, color .15s;
+    }
+    .btn-gerar-codigo:hover { background: #e11233; color: #fff; border-color: #e11233; }
+    .criar-hint { font-size: 12px; color: #888; margin: 8px 0 18px; }
+
     .btn-upload-horarios {
       display: flex;
       align-items: center;
@@ -257,6 +305,12 @@
     }
 
     /* ── Tema escuro ── */
+    body.dark-theme .criar-campo { color: #ccc; }
+    body.dark-theme .criar-campo select,
+    body.dark-theme .criar-campo input { background: #262626; border-color: #444; color: #eee; }
+    body.dark-theme .btn-gerar-codigo { background: #2b2b2b; border-color: #444; color: #ddd; }
+    body.dark-theme .criar-hint { color: #999; }
+
     body.dark-theme .upload-dropzone {
       background: #262626;
       border-color: #444;

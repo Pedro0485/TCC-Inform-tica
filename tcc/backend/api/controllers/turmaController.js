@@ -307,6 +307,53 @@ async function uploadHorarios(req, res) {
 
 const DIAS_VALIDOS = ['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'];
 
+// funcao que substitui TODOS os horarios (aulas) de uma turma pelos enviados
+// body: { horarios: [ { dia_semana, hora_inicio, hora_fim, materia } ] }  (lista pode ser vazia)
+async function salvarHorariosTurma(req, res) {
+  const { id } = req.params;
+  const { horarios } = req.body;
+
+  if (!Array.isArray(horarios)) {
+    return res.status(400).json({ error: 'Envie a lista de horários em "horarios"' });
+  }
+
+  const conn = await pool.getConnection();
+  try {
+    const [turma] = await conn.query('SELECT id FROM turmas WHERE id = ? LIMIT 1', [id]);
+    if (turma.length === 0) {
+      return res.status(404).json({ error: 'Turma não encontrada' });
+    }
+
+    await conn.beginTransaction();
+    await conn.query('DELETE FROM aulas WHERE turma_id = ?', [id]);
+
+    for (const h of horarios) {
+      const { dia_semana, hora_inicio, hora_fim, materia } = h;
+
+      if (!dia_semana || !hora_inicio || !hora_fim || !materia) {
+        throw new Error('Cada horário precisa de dia_semana, hora_inicio, hora_fim e materia');
+      }
+      if (!DIAS_VALIDOS.includes(String(dia_semana).toLowerCase())) {
+        throw new Error(`dia_semana inválido: ${dia_semana}`);
+      }
+
+      await conn.query(
+        `INSERT INTO aulas (turma_id, dia_semana, hora_inicio, hora_fim, materia) VALUES (?, ?, ?, ?, ?)`,
+        [id, String(dia_semana).toLowerCase(), hora_inicio, hora_fim, String(materia).trim()]
+      );
+    }
+
+    await conn.commit();
+    return res.json({ mensagem: 'Horários da turma salvos', total_aulas: horarios.length });
+  } catch (err) {
+    await conn.rollback();
+    console.error(err);
+    return res.status(400).json({ error: err.message || 'Erro ao salvar horários da turma' });
+  } finally {
+    conn.release();
+  }
+}
+
 // funcao que recebe o JSON ja processado (pelo script Python) e grava na tabela `aulas`
 // formato esperado no body: um array de objetos, ex:
 // [
@@ -374,5 +421,6 @@ module.exports = {
   deletarTurma,
   loginTurma,
   uploadHorarios,
-  salvarHorariosLidos
+  salvarHorariosLidos,
+  salvarHorariosTurma
 };
