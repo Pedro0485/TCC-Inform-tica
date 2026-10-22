@@ -27,7 +27,7 @@ function validarEmail(email) {
 
 // funcao de validar codigo da turma
 function validarCodigoTurma(codigo) {
-  return /^\d+$/.test(codigo);
+  return codigo.length >= 4 && !/\s/.test(codigo);
 }
 
 // funcao para mostrar o loading no botao
@@ -147,7 +147,7 @@ formTurma.addEventListener('submit', async (e) => {
     if(!validarCodigoTurma(codigoTurma)) {
         Swal.fire({
             title: 'Ops!',
-            text: 'Código da turma deve conter apenas números.',
+            text: 'Código da turma inválido (mínimo 4 caracteres, sem espaços).',
             icon: 'warning',
             confirmButtonText: 'OK',
             heightAuto: false
@@ -205,3 +205,22 @@ registerBtn.addEventListener('click', () => {
 loginBtn.addEventListener('click', () => {
     container.classList.remove('active');
 });
+
+// Completa o select de cursos do login com cursos novos cadastrados pela coordenação
+(async function carregarCursosLogin() {
+    try {
+        const sel = document.getElementById('turma');
+        if (!sel) return;
+        const res = await fetch(`${API_URL}/login/cursos`);
+        if (!res.ok) return;
+        const nomes = await res.json();
+        const existentes = new Set([...sel.options].map((o) => o.value));
+        nomes.forEach((slug) => {
+            if (existentes.has(slug)) return;
+            const opt = document.createElement('option');
+            opt.value = slug;
+            opt.textContent = slug.charAt(0).toUpperCase() + slug.slice(1).replace(/_/g, ' ');
+            sel.appendChild(opt);
+        });
+    } catch (e) { /* mantém a lista padrão */ }
+})();

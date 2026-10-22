@@ -13,6 +13,10 @@ router.post('/horarios-lidos', verificarChaveInterna, turmaController.salvarHora
 // Daqui pra baixo, todas as rotas de turmas exigem token válido e perfil de coordenadora (admin = 1)
 router.use(verificarToken, apenasCoordenadora);
 
+router.put('/materias/renomear', turmaController.renomearMateria);
+router.get('/materias/professores', turmaController.listarProfessoresMaterias);
+router.put('/materias/professores', turmaController.definirProfessoresMateria);
+router.delete('/materias/professores', turmaController.removerProfessoresMateria);
 router.post('/', turmaController.criarTurma);
 router.get('/', turmaController.listarTurmas);
 router.get('/:id', turmaController.buscarTurma);

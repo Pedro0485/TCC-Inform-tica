@@ -17,6 +17,15 @@ function validarAno(ano) {
   return Number.isInteger(n) && n >= 1 && n <= 3;
 }
 
+// O código da turma funciona como uma senha: letras, números e símbolos,
+// sem espaços, de 4 a 20 caracteres. Maiúsculas e minúsculas são diferentes.
+function validarCodigo(codigo) {
+  const c = String(codigo).trim();
+  if (c.length < 4 || c.length > 20) return 'O código deve ter de 4 a 20 caracteres';
+  if (/\s/.test(c)) return 'O código não pode ter espaços';
+  return null;
+}
+
 // funcao para criar uma nova turma (somente coordenadora)
 async function criarTurma(req, res) {
   try {
@@ -28,6 +37,11 @@ async function criarTurma(req, res) {
 
     if (!validarAno(ano)) {
       return res.status(400).json({ error: 'Ano deve ser 1, 2 ou 3' });
+    }
+
+    const erroCodigo = validarCodigo(codigo);
+    if (erroCodigo) {
+      return res.status(400).json({ error: erroCodigo });
     }
 
     if (!TURNOS_VALIDOS.includes(String(turno).toLowerCase())) {
@@ -64,6 +78,17 @@ async function criarTurma(req, res) {
     }
     console.error(err);
     return res.status(500).json({ error: 'Erro ao cadastrar turma' });
+  }
+}
+
+// funcao publica: lista os nomes de cursos que possuem turma (usada no select do login)
+async function listarCursosPublico(req, res) {
+  try {
+    const [rows] = await pool.query(`SELECT DISTINCT nome FROM turmas ORDER BY nome`);
+    return res.json(rows.map((r) => r.nome));
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Erro ao listar cursos' });
   }
 }
 
@@ -129,6 +154,10 @@ async function atualizarTurma(req, res) {
     }
 
     if (codigo !== undefined) {
+      const erroCodigo = validarCodigo(codigo);
+      if (erroCodigo) {
+        return res.status(400).json({ error: erroCodigo });
+      }
       campos.push('codigo = ?');
       valores.push(String(codigo).trim());
     }
@@ -164,6 +193,151 @@ async function atualizarTurma(req, res) {
   }
 }
 
+// funcao para renomear uma matéria em todas as aulas já salvas (somente coordenadora)
+// body: { de: 'Nome antigo', para: 'Nome novo' }
+async function renomearMateria(req, res) {
+  try {
+    const de = String(req.body.de || '').trim();
+    const para = String(req.body.para || '').trim();
+
+    if (!de || !para) {
+      return res.status(400).json({ error: 'Informe o nome atual e o novo nome da matéria' });
+    }
+    if (para.length > 80) {
+      return res.status(400).json({ error: 'O nome da matéria pode ter no máximo 80 caracteres' });
+    }
+
+    const [result] = await pool.query(`UPDATE aulas SET materia = ? WHERE materia = ?`, [para, de]);
+
+    // leva junto os professores atribuídos à matéria (ignora professores que já estejam no novo nome)
+    await pool.query(`UPDATE IGNORE materias_professores SET materia = ? WHERE materia = ?`, [para, de]);
+    await pool.query(`DELETE FROM materias_professores WHERE materia = ?`, [de]);
+
+    return res.json({ atualizadas: result.affectedRows });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Erro ao renomear matéria' });
+  }
+}
+
+// funcao que lista os professores atribuídos a cada matéria (somente coordenadora)
+// resposta: { "Matemática": [ { id, nome }, ... ], ... }
+async function listarProfessoresMaterias(req, res) {
+  try {
+    const [rows] = await pool.query(
+      `SELECT mp.materia, p.id, p.nome
+         FROM materias_professores mp
+         JOIN professores p ON p.id = mp.professor_id
+        ORDER BY mp.materia, p.nome`
+    );
+
+    const mapa = {};
+    rows.forEach((r) => {
+      if (!mapa[r.materia]) mapa[r.materia] = [];
+      mapa[r.materia].push({ id: r.id, nome: r.nome });
+    });
+    return res.json(mapa);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Erro ao listar professores das matérias' });
+  }
+}
+
+// Recria os vínculos aulas_professores das aulas de uma matéria a partir de materias_professores
+async function sincronizarAulasDaMateria(conn, materia) {
+  await conn.query(
+    `DELETE ap FROM aulas_professores ap JOIN aulas a ON a.id = ap.aula_id WHERE a.materia = ?`,
+    [materia]
+  );
+  await conn.query(
+    `INSERT IGNORE INTO aulas_professores (aula_id, professor_id)
+     SELECT a.id, mp.professor_id
+       FROM aulas a JOIN materias_professores mp ON mp.materia = a.materia
+      WHERE a.materia = ?`,
+    [materia]
+  );
+}
+
+// funcao que define (substitui) os professores de uma matéria (somente coordenadora)
+// body: { materia: 'Matemática', professores: [1, 2] }  (lista vazia remove todos)
+async function definirProfessoresMateria(req, res) {
+  const materia = String(req.body.materia || '').trim();
+  const { professores } = req.body;
+
+  if (!materia) {
+    return res.status(400).json({ error: 'Informe a matéria' });
+  }
+  if (materia.length > 80) {
+    return res.status(400).json({ error: 'O nome da matéria pode ter no máximo 80 caracteres' });
+  }
+  if (!Array.isArray(professores)) {
+    return res.status(400).json({ error: 'Envie a lista de professores em "professores"' });
+  }
+
+  const ids = [...new Set(professores.map(Number))];
+  if (ids.some((n) => !Number.isInteger(n) || n <= 0)) {
+    return res.status(400).json({ error: 'Lista de professores inválida' });
+  }
+
+  const conn = await pool.getConnection();
+  try {
+    // só aceita professores que realmente existem (e não a coordenadora, que não leciona)
+    if (ids.length > 0) {
+      const [validos] = await conn.query(
+        `SELECT id FROM professores WHERE admin = 0 AND id IN (?)`,
+        [ids]
+      );
+      if (validos.length !== ids.length) {
+        return res.status(400).json({ error: 'Um ou mais professores não foram encontrados' });
+      }
+    }
+
+    await conn.beginTransaction();
+    await conn.query(`DELETE FROM materias_professores WHERE materia = ?`, [materia]);
+    if (ids.length > 0) {
+      await conn.query(
+        `INSERT INTO materias_professores (materia, professor_id) VALUES ?`,
+        [ids.map((id) => [materia, id])]
+      );
+    }
+    // aplica a mudança nas aulas dessa matéria que já estão salvas
+    await sincronizarAulasDaMateria(conn, materia);
+    await conn.commit();
+
+    return res.json({ materia, professores: ids });
+  } catch (err) {
+    await conn.rollback();
+    console.error(err);
+    return res.status(500).json({ error: 'Erro ao atribuir professores à matéria' });
+  } finally {
+    conn.release();
+  }
+}
+
+// funcao que remove os professores atribuídos a uma matéria excluída (somente coordenadora)
+// body: { materia: 'Matemática' }
+async function removerProfessoresMateria(req, res) {
+  const materia = String(req.body.materia || '').trim();
+  if (!materia) {
+    return res.status(400).json({ error: 'Informe a matéria' });
+  }
+
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+    await conn.query(`DELETE FROM materias_professores WHERE materia = ?`, [materia]);
+    await sincronizarAulasDaMateria(conn, materia);
+    await conn.commit();
+    return res.status(204).send();
+  } catch (err) {
+    await conn.rollback();
+    console.error(err);
+    return res.status(500).json({ error: 'Erro ao remover professores da matéria' });
+  } finally {
+    conn.release();
+  }
+}
+
 // funcao para deletar uma turma por id (somente coordenadora)
 async function deletarTurma(req, res) {
   try {
@@ -195,7 +369,7 @@ async function loginTurma(req, res) {
     const codigoNorm = String(codigoTurma).trim();
 
     const [rows] = await pool.query(
-      `SELECT id, nome, ano, codigo, turno FROM turmas WHERE nome = ? AND ano = ? AND codigo = ? LIMIT 1`,
+      `SELECT id, nome, ano, codigo, turno FROM turmas WHERE nome = ? AND ano = ? AND BINARY codigo = ? LIMIT 1`,
       [nomeNorm, ano, codigoNorm]
     );
 
@@ -337,9 +511,16 @@ async function salvarHorariosTurma(req, res) {
         throw new Error(`dia_semana inválido: ${dia_semana}`);
       }
 
-      await conn.query(
+      const [ins] = await conn.query(
         `INSERT INTO aulas (turma_id, dia_semana, hora_inicio, hora_fim, materia) VALUES (?, ?, ?, ?, ?)`,
         [id, String(dia_semana).toLowerCase(), hora_inicio, hora_fim, String(materia).trim()]
+      );
+
+      // já vincula à aula os professores atribuídos a essa matéria
+      await conn.query(
+        `INSERT IGNORE INTO aulas_professores (aula_id, professor_id)
+         SELECT ?, professor_id FROM materias_professores WHERE materia = ?`,
+        [ins.insertId, String(materia).trim()]
       );
     }
 
@@ -397,6 +578,13 @@ async function salvarHorariosLidos(req, res) {
           `INSERT INTO aulas_professores (aula_id, professor_id) VALUES ?`,
           [valores]
         );
+      } else {
+        // sem professores no PDF: usa os atribuídos à matéria
+        await conn.query(
+          `INSERT IGNORE INTO aulas_professores (aula_id, professor_id)
+           SELECT ?, professor_id FROM materias_professores WHERE materia = ?`,
+          [aulaId, String(materia).trim()]
+        );
       }
 
       inseridos.push(aulaId);
@@ -414,6 +602,11 @@ async function salvarHorariosLidos(req, res) {
 }
 
 module.exports = {
+  renomearMateria,
+  listarProfessoresMaterias,
+  definirProfessoresMateria,
+  removerProfessoresMateria,
+  listarCursosPublico,
   criarTurma,
   listarTurmas,
   buscarTurma,

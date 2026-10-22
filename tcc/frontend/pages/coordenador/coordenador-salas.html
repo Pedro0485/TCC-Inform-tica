@@ -55,6 +55,18 @@
             <i class="ti ti-plus"></i>
             <span>Criar turma</span>
           </button>
+          <button class="btn-upload-horarios" onclick="abrirModalHorariosTurno()">
+            <i class="ti ti-clock-edit"></i>
+            <span>Horários dos turnos</span>
+          </button>
+          <button class="btn-upload-horarios" onclick="abrirModalCursos()">
+            <i class="ti ti-school"></i>
+            <span>Cursos</span>
+          </button>
+          <button class="btn-upload-horarios" onclick="abrirModalMaterias()">
+            <i class="ti ti-book"></i>
+            <span>Matérias</span>
+          </button>
           <button class="btn-upload-horarios" onclick="abrirModalUpload()">
             <i class="ti ti-upload"></i>
             <span>Fazer upload de horários</span>
@@ -123,17 +135,12 @@
     <div class="criar-form-grid">
       <label class="criar-campo">
         <span>Curso</span>
-        <select id="criar-curso">
-          <option value="" selected disabled hidden>Selecione o curso</option>
-          <option value="informatica">Informática</option>
-          <option value="edificacoes">Edificações</option>
-          <option value="mecatronica">Mecatrônica</option>
-          <option value="administracao">Administração</option>
-          <option value="desenvolvimento_de_sistemas">Desenvolvimento de Sistemas</option>
-          <option value="marketing">Marketing</option>
-          <option value="mecanica">Mecânica</option>
-          <option value="recursos_humanos">Recursos Humanos</option>
-        </select>
+        <div class="criar-codigo-row">
+          <select id="criar-curso"></select>
+          <button type="button" class="btn-gerar-codigo" onclick="adicionarCurso()" title="Adicionar novo curso">
+            <i class="ti ti-plus"></i>
+          </button>
+        </div>
       </label>
       <label class="criar-campo">
         <span>Ano</span>
@@ -154,16 +161,13 @@
         </select>
       </label>
       <label class="criar-campo">
-        <span>Código de login (só números)</span>
+        <span>Código de login (senha da turma)</span>
         <div class="criar-codigo-row">
-          <input type="text" id="criar-codigo" inputmode="numeric" maxlength="20" placeholder="Ex: 123456" autocomplete="off" />
-          <button type="button" class="btn-gerar-codigo" onclick="gerarCodigoTurma()" title="Gerar código aleatório">
-            <i class="ti ti-refresh"></i>
-          </button>
+          <input type="text" id="criar-codigo" minlength="4" maxlength="20" placeholder="Ex: Info2026" autocomplete="off" />
         </div>
       </label>
     </div>
-    <p class="criar-hint">Os alunos entram com <strong>curso + ano + código</strong> na tela de login de turmas.</p>
+    <p class="criar-hint">Os alunos entram com <strong>curso + ano + código</strong> (letras e números, diferencia maiúsculas de minúsculas) na tela de login de turmas.</p>
 
     <div class="criar-secao-titulo">2. Horários da turma</div>
     <div class="grade-wrapper">
@@ -180,6 +184,100 @@
     <div class="modal-footer">
       <button class="btn-cancel" onclick="fecharModalCriarTurma()">Cancelar</button>
       <button class="btn-save" id="btn-criar-confirmar" onclick="criarTurma()">Criar turma</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de edição da turma (código de login e cor) -->
+<div class="modal-overlay" id="modal-editar-overlay">
+  <div class="modal modal-upload">
+    <div class="modal-header">
+      <h3 id="editar-titulo">Editar turma</h3>
+      <button class="modal-close" onclick="fecharModalEditarTurma()">✕</button>
+    </div>
+
+    <div class="criar-secao-titulo">Código de login</div>
+    <label class="criar-campo">
+      <span>Código (senha da turma)</span>
+      <div class="criar-codigo-row">
+        <input type="text" id="editar-codigo" minlength="4" maxlength="20" autocomplete="off" />
+        <button type="button" class="btn-gerar-codigo" onclick="copiarCodigoEditar()" title="Copiar código">
+          <i class="ti ti-copy"></i>
+        </button>
+      </div>
+    </label>
+    <p class="criar-hint">Os alunos entram com <strong>curso + ano + código</strong>. Ao trocar o código, o antigo para de funcionar.</p>
+
+    <div class="criar-secao-titulo">Cor da turma</div>
+    <div class="cor-editor">
+      <div class="cor-swatches" id="editar-cores"></div>
+      <div class="cor-custom-row">
+        <input type="color" id="editar-cor-input" value="#555555" />
+        <button type="button" class="btn-cancel" onclick="usarCorDoCurso()">Usar cor do curso</button>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="fecharModalEditarTurma()">Cancelar</button>
+      <button class="btn-save" id="btn-editar-salvar" onclick="salvarEdicaoTurma()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de cursos -->
+<div class="modal-overlay" id="modal-cursos-overlay">
+  <div class="modal modal-upload">
+    <div class="modal-header">
+      <h3>Cursos</h3>
+      <button class="modal-close" onclick="fecharModalCursos()">✕</button>
+    </div>
+    <div class="materia-add-row">
+      <input type="text" id="curso-novo" placeholder="Nome do novo curso" maxlength="60" autocomplete="off" />
+      <button type="button" class="btn-save" onclick="adicionarCursoModal()"><i class="ti ti-plus"></i> Adicionar</button>
+    </div>
+    <div class="materias-contador" id="cursos-contador"></div>
+    <ul class="materias-lista" id="cursos-lista"></ul>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="fecharModalCursos()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de matérias -->
+<div class="modal-overlay" id="modal-materias-overlay">
+  <div class="modal modal-upload">
+    <div class="modal-header">
+      <h3>Matérias</h3>
+      <button class="modal-close" onclick="fecharModalMaterias()">✕</button>
+    </div>
+    <div class="materia-add-row">
+      <input type="text" id="materia-nova" placeholder="Nome da nova matéria" maxlength="80" autocomplete="off" />
+      <button type="button" class="btn-save" onclick="adicionarMateria()"><i class="ti ti-plus"></i> Adicionar</button>
+    </div>
+    <div class="criar-campo materia-prof-campo">
+      <span>Professores da matéria (opcional)</span>
+      <div class="prof-checklist" id="materia-prof-lista"></div>
+    </div>
+    <div class="materias-contador" id="materias-contador"></div>
+    <ul class="materias-lista" id="materias-lista"></ul>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="fecharModalMaterias()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de edição dos horários dos turnos -->
+<div class="modal-overlay" id="modal-turnos-overlay">
+  <div class="modal modal-turnos">
+    <div class="modal-header">
+      <h3>Horários dos turnos</h3>
+      <button class="modal-close" onclick="fecharModalHorariosTurno()">✕</button>
+    </div>
+    <div id="turnos-editor" class="turnos-editor"></div>
+    <p class="criar-hint">Os horários valem para as grades abertas daqui para frente. Aulas já salvas não mudam.</p>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="fecharModalHorariosTurno()">Cancelar</button>
+      <button class="btn-save" onclick="salvarHorariosTurno()">Salvar</button>
     </div>
   </div>
 </div>

@@ -547,3 +547,12 @@
   body.dark-theme .curso-row .curso-label {
     color: #aaa;
   }
+
+@media (max-width: 768px) {
+  .edit-turma-btn {
+    position: absolute; top: -6px; left: -6px; width: 20px; height: 20px;
+    border-radius: 50%; border: none; background: rgba(0,0,0,0.30); color: white;
+    font-size: 12px; line-height: 1; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; z-index: 1;
+  }
+}

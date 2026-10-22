@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS turmas (
   id INT AUTO_INCREMENT PRIMARY KEY,
   nome VARCHAR(100) NOT NULL,
   ano TINYINT NOT NULL,             -- 1, 2 ou 3
-  codigo VARCHAR(20) NOT NULL,      -- código numérico que o aluno digita no login
+  codigo VARCHAR(20) NOT NULL,      -- código (letras/números, funciona como senha) que o aluno digita no login
   turno ENUM('matutino', 'integral', 'vespertino', 'noturno') NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -120,3 +120,17 @@ FROM notificacoes n
 WHERE NOT EXISTS (
   SELECT 1 FROM notificacoes_destinos d WHERE d.notificacao_id = n.id
 );
+
+
+-- ---------------------------------------------------------------
+-- materias_professores
+-- Professores responsáveis por cada matéria (a lista de matérias em si fica
+-- no front, então a matéria é identificada pelo nome, igual a aulas.materia).
+-- Uma matéria pode ter vários professores e um professor várias matérias.
+-- ---------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS materias_professores (
+  materia VARCHAR(150) NOT NULL,
+  professor_id INT NOT NULL,
+  PRIMARY KEY (materia, professor_id),
+  CONSTRAINT fk_materias_professores_professor FOREIGN KEY (professor_id) REFERENCES professores(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
