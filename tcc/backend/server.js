@@ -66,7 +66,28 @@ app.use((err, req, res, next) => {
   next();
 });
 
+// Garante que a tabela de professores por matéria exista (bancos criados antes dela
+// ser adicionada ao schema.sql não a têm, e isso causava erro ao atribuir professores)
+async function garantirTabelas() {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS materias_professores (
+        materia VARCHAR(150) NOT NULL,
+        professor_id INT NOT NULL,
+        PRIMARY KEY (materia, professor_id),
+        CONSTRAINT fk_materias_professores_professor
+          FOREIGN KEY (professor_id) REFERENCES professores(id) ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    `);
+    console.log('[db] tabela materias_professores OK');
+  } catch (err) {
+    console.error('[db] não foi possível criar/verificar materias_professores:', err.message);
+  }
+}
+
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
+garantirTabelas().finally(() => {
+  app.listen(PORT, () => {
+    console.log(`Servidor rodando na porta ${PORT}`);
+  });
 });

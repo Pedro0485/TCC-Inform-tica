@@ -1,3 +1,4 @@
+console.log("[salas] coordenador-salas.js versão 5 carregada");
 // ── Cores por curso ──────────────────────────────────────────────────────────
 const CORES = {
   'Informática':   '#9b27af',
@@ -559,7 +560,7 @@ async function carregarProfessoresMaterias() {
 }
 
 // Monta uma lista de checkboxes com os professores cadastrados dentro de `box`
-function montarChecklistProfessores(box, selecionados = []) {
+function montarChecklistProfessores(box, selecionados = [], unico = false) {
   box.innerHTML = '';
   if (!PROFESSORES.length) {
     const vazio = document.createElement('div');
@@ -575,6 +576,12 @@ function montarChecklistProfessores(box, selecionados = []) {
     cb.type = 'checkbox';
     cb.value = p.id;
     cb.checked = selecionados.includes(p.id);
+    if (unico) {
+      // só um professor por vez: marcar um desmarca os outros
+      cb.addEventListener('change', () => {
+        if (cb.checked) box.querySelectorAll('input[type="checkbox"]').forEach((o) => { if (o !== cb) o.checked = false; });
+      });
+    }
     const nome = document.createElement('span');
     nome.textContent = p.nome;
     label.appendChild(cb);
@@ -608,10 +615,10 @@ async function editarProfessoresMateria(i) {
 
   const box = document.createElement('div');
   box.className = 'prof-checklist';
-  montarChecklistProfessores(box, (PROF_MATERIAS[materia] || []).map((p) => p.id));
+  montarChecklistProfessores(box, (PROF_MATERIAS[materia] || []).map((p) => p.id).slice(0, 1), true);
 
   const { isConfirmed, value } = await Swal.fire({
-    titleText: `Professores — ${materia}`,
+    titleText: `Professores — ${nomeBase(materia)}`,
     html: box,
     showCancelButton: true,
     confirmButtonText: 'Salvar',
@@ -631,6 +638,17 @@ async function editarProfessoresMateria(i) {
   }
 }
 
+// O nome interno de uma matéria com professor é "Matemática (Ota)" (chave única no banco),
+// mas na lista aparece só "Matemática": o professor já é mostrado logo abaixo.
+function sufixoProfessor(m) {
+  const r = /^(.*?)( \((.+)\))$/.exec(m);
+  return r && PROFESSORES.some((p) => p.nome === r[3]) ? r[2] : '';
+}
+function nomeBase(m) {
+  const suf = sufixoProfessor(m);
+  return suf ? m.slice(0, m.length - suf.length) : m;
+}
+
 function renderListaMaterias() {
   const ul = document.getElementById('materias-lista');
   ul.innerHTML = '';
@@ -642,7 +660,7 @@ function renderListaMaterias() {
     const li = document.createElement('li');
     li.className = 'materia-item';
     const nome = document.createElement('span');
-    nome.textContent = m;
+    nome.textContent = nomeBase(m);
     const profs = PROF_MATERIAS[m] || [];
     const sub = document.createElement('small');
     sub.className = 'materia-profs' + (profs.length ? '' : ' sem');
@@ -697,26 +715,59 @@ async function adicionarMateria() {
   const box = document.getElementById('materia-prof-lista');
   const nome = inp.value.trim();
   if (!nome) return;
-  if (MATERIAS.some((m) => m.toLowerCase() === nome.toLowerCase())) {
-    Swal.fire({ title: 'Ops', text: 'Essa matéria já existe.', icon: 'warning',
-      confirmButtonText: 'OK', customClass: { popup: 'meu-alerta' } });
+  const ids = lerChecklistProfessores(box);
+  const alerta = (title, text, icon = 'warning') => Swal.fire({
+    title, text, icon, confirmButtonText: 'OK', customClass: { popup: 'meu-alerta' },
+  });
+  const low = (t) => t.toLowerCase();
+
+  await carregarProfessoresMaterias(); // lista atual vinda do banco
+
+  // Cada linha da lista tem UM professor. A mesma matéria com professores diferentes
+  // vira linhas separadas: "Matemática (Ota)" e "Matemática (Gabriel)".
+  const doGrupo = (m) => low(m) === low(nome) || low(m).startsWith(low(nome) + ' (');
+  const alvos = ids.length ? PROFESSORES.filter((p) => ids.includes(p.id)) : [null];
+
+  const novos = [];
+  const repetidos = [];
+  alvos.forEach((prof) => {
+    if (!prof) {
+      if (MATERIAS.some((m) => low(m) === low(nome))) repetidos.push(null);
+      else novos.push({ nome, prof: null });
+      return;
+    }
+    const nomeFinal = `${nome} (${prof.nome})`;
+    const jaTem = MATERIAS.some((m) => (doGrupo(m) && (PROF_MATERIAS[m] || []).some((p) => p.id === prof.id))
+      || low(m) === low(nomeFinal));
+    if (jaTem) repetidos.push(prof.nome);
+    else novos.push({ nome: nomeFinal, prof });
+  });
+
+  // mesma matéria + mesmo professor: erro, e nada é adicionado
+  if (repetidos.length) {
+    const com = repetidos.filter(Boolean);
+    alerta('Ops', com.length
+      ? `A matéria "${nome}" já está cadastrada com: ${com.join(', ')}.`
+      : 'Essa matéria já existe.');
     return;
   }
-  const ids = lerChecklistProfessores(box);
 
-  MATERIAS.push(nome);
-  persistirMaterias();
-  inp.value = '';
-
-  if (ids.length) {
+  const falhas = [];
+  for (const n of novos) {
     try {
-      await salvarProfessoresMateria(nome, ids);
+      if (n.prof) await salvarProfessoresMateria(n.nome, [n.prof.id]);
+      MATERIAS.push(n.nome);
     } catch (err) {
       console.error(err);
-      Swal.fire({ title: 'Matéria adicionada', icon: 'warning', confirmButtonText: 'OK',
-        text: 'Mas não foi possível atribuir os professores: ' + err.message + '. Tente de novo pelo botão de professores da matéria.',
-        customClass: { popup: 'meu-alerta' } });
+      falhas.push(`${n.nome}: ${err.message}`);
     }
+  }
+  persistirMaterias();
+
+  if (falhas.length) {
+    alerta('Não foi possível adicionar tudo', 'Erro ao atribuir o professor — ' + falhas.join('; '), 'error');
+  } else {
+    inp.value = '';
   }
   montarChecklistProfessores(box);
   renderListaMaterias();
@@ -730,7 +781,7 @@ async function editarMateria(i) {
   const { value, isConfirmed } = await Swal.fire({
     title: 'Editar matéria',
     input: 'text',
-    inputValue: antigo,
+    inputValue: nomeBase(antigo),
     inputAttributes: { maxlength: 80 },
     showCancelButton: true,
     confirmButtonText: 'Salvar',
@@ -739,8 +790,9 @@ async function editarMateria(i) {
   });
   if (!isConfirmed) return;
 
-  const novo = (value || '').trim();
-  if (!novo || novo === antigo) return;
+  const novoBase = (value || '').trim();
+  const novo = novoBase + sufixoProfessor(antigo); // mantém o professor no nome interno
+  if (!novoBase || novo === antigo) return;
   if (MATERIAS.some((m, j) => j !== i && m.toLowerCase() === novo.toLowerCase())) {
     Swal.fire({ title: 'Ops', text: 'Já existe uma matéria com esse nome.', icon: 'warning',
       confirmButtonText: 'OK', customClass: { popup: 'meu-alerta' } });
@@ -789,7 +841,7 @@ async function excluirMateria(i) {
   const nome = MATERIAS[i];
   const { isConfirmed } = await Swal.fire({
     title: 'Excluir matéria?',
-    html: `<strong>${nome}</strong> deixará de aparecer nas listas. Horários já salvos com ela não são alterados.`,
+    html: `<strong>${nomeBase(nome)}</strong>${(PROF_MATERIAS[nome] || []).length ? ' (' + PROF_MATERIAS[nome].map((p) => p.nome).join(', ') + ')' : ''} deixará de aparecer nas listas. Horários já salvos com ela não são alterados.`,
     icon: 'warning',
     showCancelButton: true,
     confirmButtonText: 'Sim, excluir',

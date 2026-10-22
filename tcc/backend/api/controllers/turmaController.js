@@ -203,8 +203,8 @@ async function renomearMateria(req, res) {
     if (!de || !para) {
       return res.status(400).json({ error: 'Informe o nome atual e o novo nome da matéria' });
     }
-    if (para.length > 80) {
-      return res.status(400).json({ error: 'O nome da matéria pode ter no máximo 80 caracteres' });
+    if (para.length > 150) {
+      return res.status(400).json({ error: 'O nome da matéria pode ter no máximo 150 caracteres' });
     }
 
     const [result] = await pool.query(`UPDATE aulas SET materia = ? WHERE materia = ?`, [para, de]);
@@ -267,8 +267,8 @@ async function definirProfessoresMateria(req, res) {
   if (!materia) {
     return res.status(400).json({ error: 'Informe a matéria' });
   }
-  if (materia.length > 80) {
-    return res.status(400).json({ error: 'O nome da matéria pode ter no máximo 80 caracteres' });
+  if (materia.length > 150) {
+    return res.status(400).json({ error: 'O nome da matéria pode ter no máximo 150 caracteres' });
   }
   if (!Array.isArray(professores)) {
     return res.status(400).json({ error: 'Envie a lista de professores em "professores"' });
@@ -277,6 +277,9 @@ async function definirProfessoresMateria(req, res) {
   const ids = [...new Set(professores.map(Number))];
   if (ids.some((n) => !Number.isInteger(n) || n <= 0)) {
     return res.status(400).json({ error: 'Lista de professores inválida' });
+  }
+  if (ids.length > 1) {
+    return res.status(400).json({ error: 'Cada matéria pode ter apenas um professor' });
   }
 
   const conn = await pool.getConnection();

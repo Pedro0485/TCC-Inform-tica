@@ -125,6 +125,26 @@ async function meuPerfil(req, res) {
   }
 }
 
+// funcao que lista as aulas do professor autenticado (turma = sala), lidas do banco
+async function minhasAulas(req, res) {
+  try {
+    const [rows] = await pool.query(
+      `SELECT a.id, a.dia_semana, a.hora_inicio, a.hora_fim, a.materia,
+              t.id AS turma_id, t.nome AS turma_nome, t.ano AS turma_ano, t.turno
+         FROM aulas a
+         JOIN aulas_professores ap ON ap.aula_id = a.id
+         JOIN turmas t ON t.id = a.turma_id
+        WHERE ap.professor_id = ?
+        ORDER BY a.hora_inicio, a.dia_semana`,
+      [req.usuario.id],
+    );
+    return res.json(rows);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Erro ao buscar horários de aulas" });
+  }
+}
+
 // funcao para o usuário logado (professor ou coordenadora) atualizar seus próprios
 // dados (nome, email, senha) — nunca o campo "admin", pra ninguém se autopromover
 async function atualizarMeuPerfil(req, res) {
@@ -326,6 +346,7 @@ async function deletarProfessor(req, res) {
 module.exports = {
   login,
   meuPerfil,
+  minhasAulas,
   atualizarMeuPerfil,
   criarProfessor,
   listarProfessores,

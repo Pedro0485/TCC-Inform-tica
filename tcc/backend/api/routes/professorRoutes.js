@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 
 const professorController = require('../controllers/professorController');
-const { verificarToken, apenasCoordenadora } = require('../middlewares/authMiddleware');
+const { verificarToken, apenasProfessor, apenasCoordenadora } = require('../middlewares/authMiddleware');
 
 // Rota pública - login do professor
 router.post('/login', professorController.login);
@@ -12,6 +12,9 @@ router.post('/login', professorController.login);
 // não precisa ser coordenadora, já que cada um só mexe nos próprios dados
 router.get('/me', verificarToken, professorController.meuPerfil);
 router.put('/me', verificarToken, professorController.atualizarMeuPerfil);
+
+// Aulas do professor autenticado (somente as dele)
+router.get('/me/aulas', verificarToken, apenasProfessor, professorController.minhasAulas);
 
 // A partir daqui, todas as rotas exigem token válido e perfil de coordenadora (admin = 1)
 router.use(verificarToken, apenasCoordenadora);
