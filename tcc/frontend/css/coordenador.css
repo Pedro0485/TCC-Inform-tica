@@ -791,6 +791,15 @@ body.dark-theme .notification-create-form .recipient-option:has(input:checked) {
   .notification-create-footer .notification-action-btn { width:100%; justify-content:center; }
 }
 
+/* ---- Notificação: adicionar ao calendário ---- */
+.notification-calendar-box { margin-top:16px; display:flex; flex-wrap:wrap; align-items:flex-end; gap:14px; }
+.notification-calendar-box .recipient-option { align-self:flex-start; }
+.notification-calendar-fields { display:grid; grid-template-columns:repeat(2, minmax(150px, 200px)); gap:14px; }
+.notification-calendar-fields[hidden] { display:none; }
+@media (max-width: 640px) {
+  .notification-calendar-fields { grid-template-columns:1fr 1fr; width:100%; }
+}
+
 /* =========================================================
    CALENDÁRIO - VISUAL MODERNO
    ========================================================= */

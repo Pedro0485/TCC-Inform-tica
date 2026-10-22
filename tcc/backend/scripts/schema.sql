@@ -134,3 +134,27 @@ CREATE TABLE IF NOT EXISTS materias_professores (
   PRIMARY KEY (materia, professor_id),
   CONSTRAINT fk_materias_professores_professor FOREIGN KEY (professor_id) REFERENCES professores(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+-- ---------------------------------------------------------------
+-- eventos
+-- Eventos do calendário. Podem ser cadastrados manualmente (notificacao_id NULL,
+-- visíveis só para quem criou) ou gerados por uma notificação (notificacao_id
+-- preenchido, visíveis para os destinatários da notificação via notificacoes_destinos).
+-- ---------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS eventos (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  titulo VARCHAR(150) NOT NULL,
+  descricao TEXT NULL,
+  data_evento DATE NOT NULL,
+  hora_evento TIME NULL,
+  notificacao_id INT NULL,
+  criado_por_tipo ENUM('professor','turma') NOT NULL,
+  criado_por_id INT NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_eventos_notificacao FOREIGN KEY (notificacao_id) REFERENCES notificacoes(id) ON DELETE CASCADE,
+  INDEX idx_eventos_data (data_evento),
+  INDEX idx_eventos_criador (criado_por_tipo, criado_por_id),
+  INDEX idx_eventos_notificacao (notificacao_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

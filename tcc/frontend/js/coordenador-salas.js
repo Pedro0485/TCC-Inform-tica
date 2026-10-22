@@ -264,6 +264,26 @@ async function buscarTurmas() {
   if (!res.ok) throw new Error('Erro ao buscar turmas');
 
   const turmasApi = await res.json();
+
+  // grade vinda do banco: { "1º Informática": { "07:00": { segunda: "Matemática" } } }
+  const resAulas = await fetch(`${API_URL}/horarios`, {
+    headers: { 'Authorization': `Bearer ${getToken()}` }
+  });
+  if (!resAulas.ok) throw new Error('Erro ao buscar horários das turmas');
+  const aulasApi = await resAulas.json();
+
+  const porId = {};
+  turmasApi.forEach((t) => { porId[t.id] = `${t.ano}º ${capitalizar(t.nome)}`; });
+  horariosSalvos = {};
+  aulasApi.forEach((a) => {
+    const nome = porId[a.turma_id];
+    if (!nome) return;
+    const hora = String(a.hora_inicio).slice(0, 5);
+    if (!horariosSalvos[nome]) horariosSalvos[nome] = {};
+    if (!horariosSalvos[nome][hora]) horariosSalvos[nome][hora] = {};
+    horariosSalvos[nome][hora][a.dia_semana] = a.materia;
+  });
+
   return transformarTurmas(turmasApi);
 }
 
@@ -388,7 +408,7 @@ async function uploadPDF(file) {
   return res.json();
 }
 
-let horariosSalvos = carregarHorarios();
+let horariosSalvos = {}; // reconstruído a partir do banco em buscarTurmas()
 let dados = defaultData();
 let turnoAtivo = 'integral';
 let modalTurno = '', modalCursoIdx = -1, modalTurmaIdx = -1;
@@ -1057,22 +1077,51 @@ function fecharModal() {
   document.getElementById('modal-overlay').classList.remove('open');
 }
 
-function salvarHorarios() {
+async function salvarHorarios() {
   const curso = dados[modalTurno][modalCursoIdx];
   const turma = curso.turmas[modalTurmaIdx];
   if (!curso.horarios[turma]) curso.horarios[turma] = {};
 
+  const aulas = [];
   document.querySelectorAll('#grade-body select').forEach(sel => {
     const hora = sel.dataset.hora;
     const dia  = sel.dataset.dia;
     if (!curso.horarios[turma][hora]) curso.horarios[turma][hora] = {};
     curso.horarios[turma][hora][dia] = sel.value;
+
+    if (sel.value && sel.value !== '— nenhuma —') {
+      aulas.push({
+        dia_semana: dia,
+        hora_inicio: hora,
+        hora_fim: somarMinutos(hora, DURACAO_AULA_MIN),
+        materia: sel.value,
+      });
+    }
   });
 
-  horariosSalvos[turma] = curso.horarios[turma];
-  salvarDados();
+  // grava no banco (tabela aulas + vínculo com os professores da matéria),
+  // que é de onde professores e alunos leem seus horários
+  try {
+    const turmaId = curso._ids && curso._ids[turma];
+    if (!turmaId) throw new Error('Turma não encontrada no banco');
+    const res = await fetch(`${API_URL}/${turmaId}/horarios`, {
+      method: 'PUT',
+      headers: headersJson(),
+      body: JSON.stringify({ horarios: aulas }),
+    });
+    if (!res.ok) {
+      const e = await res.json().catch(() => ({}));
+      throw new Error(e.error || 'Erro ao salvar horários');
+    }
+  } catch (err) {
+    console.error(err);
+    return Swal.fire({ title: 'Erro', text: err.message, icon: 'error', confirmButtonText: 'OK',
+      customClass: { popup: 'meu-alerta' } });
+  }
+
   fecharModal();
-  renderTurno(modalTurno);
+  try { dados = await buscarTurmas(); } catch (err) { console.error(err); }
+  renderTodos();
 
   Swal.fire({
     icon: 'success',

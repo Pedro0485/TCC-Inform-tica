@@ -105,6 +105,23 @@ async function listarTurmas(req, res) {
   }
 }
 
+// funcao que lista as aulas gravadas de todas as turmas (somente coordenadora):
+// é a fonte da grade exibida/editada pela coordenação
+async function listarHorariosTurmas(req, res) {
+  try {
+    const [rows] = await pool.query(
+      `SELECT turma_id, dia_semana, TIME_FORMAT(hora_inicio, '%H:%i') AS hora_inicio,
+              TIME_FORMAT(hora_fim, '%H:%i') AS hora_fim, materia
+         FROM aulas
+        ORDER BY turma_id, hora_inicio, dia_semana`
+    );
+    return res.json(rows);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Erro ao listar horários das turmas' });
+  }
+}
+
 // funcao para buscar uma turma por id (somente coordenadora)
 async function buscarTurma(req, res) {
   try {
@@ -341,6 +358,29 @@ async function removerProfessoresMateria(req, res) {
   }
 }
 
+// funcao que lista as aulas da turma autenticada (login do aluno), com o professor de cada aula
+async function minhasAulasTurma(req, res) {
+  try {
+    const [rows] = await pool.query(
+      `SELECT a.id, a.dia_semana, a.hora_inicio, a.hora_fim, a.materia,
+              t.nome AS turma_nome, t.ano AS turma_ano,
+              GROUP_CONCAT(DISTINCT p.nome ORDER BY p.nome SEPARATOR ', ') AS professor
+         FROM aulas a
+         JOIN turmas t ON t.id = a.turma_id
+         LEFT JOIN aulas_professores ap ON ap.aula_id = a.id
+         LEFT JOIN professores p ON p.id = ap.professor_id
+        WHERE a.turma_id = ?
+        GROUP BY a.id
+        ORDER BY a.hora_inicio, a.dia_semana`,
+      [req.usuario.id]
+    );
+    return res.json(rows);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Erro ao buscar horários de aulas' });
+  }
+}
+
 // funcao para deletar uma turma por id (somente coordenadora)
 async function deletarTurma(req, res) {
   try {
@@ -504,7 +544,13 @@ async function salvarHorariosTurma(req, res) {
     await conn.beginTransaction();
     await conn.query('DELETE FROM aulas WHERE turma_id = ?', [id]);
 
+    // um único registro por dia + horário (vale o último enviado)
+    const unicos = new Map();
     for (const h of horarios) {
+      unicos.set(`${String(h && h.dia_semana).toLowerCase()}|${String(h && h.hora_inicio).slice(0, 5)}`, h);
+    }
+
+    for (const h of unicos.values()) {
       const { dia_semana, hora_inicio, hora_fim, materia } = h;
 
       if (!dia_semana || !hora_inicio || !hora_fim || !materia) {
@@ -528,7 +574,7 @@ async function salvarHorariosTurma(req, res) {
     }
 
     await conn.commit();
-    return res.json({ mensagem: 'Horários da turma salvos', total_aulas: horarios.length });
+    return res.json({ mensagem: 'Horários da turma salvos', total_aulas: unicos.size });
   } catch (err) {
     await conn.rollback();
     console.error(err);
@@ -556,6 +602,12 @@ async function salvarHorariosLidos(req, res) {
     await conn.beginTransaction();
 
     const inseridos = [];
+
+    // reenviar o horário de uma turma substitui o anterior (evita aulas duplicadas)
+    const turmasDoLote = [...new Set(horarios.map((h) => Number(h && h.turma_id)).filter(Boolean))];
+    if (turmasDoLote.length > 0) {
+      await conn.query('DELETE FROM aulas WHERE turma_id IN (?)', [turmasDoLote]);
+    }
 
     for (const h of horarios) {
       const { turma_id, dia_semana, hora_inicio, hora_fim, materia, professores } = h;
@@ -605,6 +657,7 @@ async function salvarHorariosLidos(req, res) {
 }
 
 module.exports = {
+  minhasAulasTurma,
   renomearMateria,
   listarProfessoresMaterias,
   definirProfessoresMateria,
@@ -612,6 +665,7 @@ module.exports = {
   listarCursosPublico,
   criarTurma,
   listarTurmas,
+  listarHorariosTurmas,
   buscarTurma,
   atualizarTurma,
   deletarTurma,

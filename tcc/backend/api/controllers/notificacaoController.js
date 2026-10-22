@@ -352,6 +352,33 @@ async function criar(req, res) {
       tipo = 'info'
     } = req.body;
 
+    // Opcional: adicionar a notificação ao calendário
+    const adicionarCalendario =
+      req.body.adicionar_calendario === true ||
+      req.body.adicionar_calendario === 'true';
+
+    const eventoData = String(req.body.evento_data || '').trim();
+    const eventoHora = String(req.body.evento_hora || '').trim();
+
+    if (adicionarCalendario) {
+
+      if (
+        !/^\d{4}-\d{2}-\d{2}$/.test(eventoData) ||
+        Number.isNaN(Date.parse(eventoData))
+      ) {
+        return res.status(400).json({
+          error: 'Informe uma data válida para o calendário'
+        });
+      }
+
+      if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(eventoHora)) {
+        return res.status(400).json({
+          error: 'Informe um horário válido para o calendário'
+        });
+      }
+
+    }
+
 
     // ========================================================
     // VALIDAR CAMPOS
@@ -521,6 +548,36 @@ async function criar(req, res) {
       ]
 
     );
+
+    // Evento no calendário (mesma transação da notificação)
+    if (adicionarCalendario) {
+
+      await conn.query(
+        `
+          INSERT INTO eventos
+          (
+            titulo,
+            descricao,
+            data_evento,
+            hora_evento,
+            notificacao_id,
+            criado_por_tipo,
+            criado_por_id
+          )
+
+          VALUES (?, ?, ?, ?, ?, 'professor', ?)
+        `,
+        [
+          String(titulo).trim(),
+          String(mensagem).trim(),
+          eventoData,
+          eventoHora,
+          result.insertId,
+          criadoPor
+        ]
+      );
+
+    }
 
     await conn.commit();
 
@@ -862,5 +919,6 @@ module.exports = {
   listar,
   criar,
   marcarLida,
-  marcarTodasLidas
+  marcarTodasLidas,
+  filtroDestinoUsuario
 };

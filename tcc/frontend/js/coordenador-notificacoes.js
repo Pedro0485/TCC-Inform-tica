@@ -36,6 +36,26 @@
 
   const box = value => typeBoxes.find(b => b.value === value);
 
+  // Calendário (opcional)
+  const calToggle = form.querySelector('[data-calendar-toggle]');
+  const calFields = form.querySelector('[data-calendar-fields]');
+  const calDate = form.querySelector('[data-calendar-date]');
+  const calTime = form.querySelector('[data-calendar-time]');
+
+  function atualizarCalendario() {
+
+    if (!calToggle || !calFields) return;
+
+    calFields.hidden = !calToggle.checked;
+
+    if (calDate) calDate.required = calToggle.checked;
+    if (calTime) calTime.required = calToggle.checked;
+  }
+
+  if (calToggle) {
+    calToggle.addEventListener('change', atualizarCalendario);
+  }
+
 
   // ==========================================================
   // TOKEN / REQUISIÇÃO GET
@@ -352,6 +372,24 @@
       destinos
     };
 
+    if (calToggle && calToggle.checked) {
+
+      const eventoData = calDate ? calDate.value : '';
+      const eventoHora = calTime ? calTime.value : '';
+
+      if (!eventoData) {
+        return aviso('Data obrigatória', 'Selecione a data do evento no calendário.');
+      }
+
+      if (!eventoHora) {
+        return aviso('Horário obrigatório', 'Selecione o horário do evento no calendário.');
+      }
+
+      body.adicionar_calendario = true;
+      body.evento_data = eventoData;
+      body.evento_hora = eventoHora;
+    }
+
     submit.disabled = true;
 
     const originalHTML = submit.innerHTML;
@@ -397,6 +435,7 @@
       });
 
       atualizarFormulario();
+      atualizarCalendario();
 
       // atualizar central de notificações
       if (
@@ -445,5 +484,6 @@
   // ==========================================================
 
   atualizarFormulario();
+  atualizarCalendario();
 
 })();

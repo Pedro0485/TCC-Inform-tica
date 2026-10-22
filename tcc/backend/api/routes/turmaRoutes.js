@@ -10,6 +10,14 @@ const { uploadHorarios } = require('../middlewares/uploadMiddleware');
 // navegador, então usa uma chave interna em vez do JWT de coordenadora)
 router.post('/horarios-lidos', verificarChaveInterna, turmaController.salvarHorariosLidos);
 
+// Aulas da turma logada (aluno): usa o id da turma do próprio token
+router.get('/me/aulas', verificarToken, (req, res, next) => {
+  if (!req.usuario || req.usuario.tipo !== 'turma') {
+    return res.status(403).json({ error: 'Acesso restrito a alunos' });
+  }
+  return next();
+}, turmaController.minhasAulasTurma);
+
 // Daqui pra baixo, todas as rotas de turmas exigem token válido e perfil de coordenadora (admin = 1)
 router.use(verificarToken, apenasCoordenadora);
 
@@ -17,6 +25,7 @@ router.put('/materias/renomear', turmaController.renomearMateria);
 router.get('/materias/professores', turmaController.listarProfessoresMaterias);
 router.put('/materias/professores', turmaController.definirProfessoresMateria);
 router.delete('/materias/professores', turmaController.removerProfessoresMateria);
+router.get('/horarios', turmaController.listarHorariosTurmas);
 router.post('/', turmaController.criarTurma);
 router.get('/', turmaController.listarTurmas);
 router.get('/:id', turmaController.buscarTurma);

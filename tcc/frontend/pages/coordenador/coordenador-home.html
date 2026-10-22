@@ -126,6 +126,22 @@
           <span>Mensagem</span>
           <textarea name="mensagem" rows="4" maxlength="1500" placeholder="Digite a mensagem que será exibida para os usuários..." required></textarea>
         </label>
+        <div class="notification-calendar-box">
+          <label class="recipient-option">
+            <input type="checkbox" name="adicionar_calendario" data-calendar-toggle>
+            <span>Adicionar ao Calendário</span>
+          </label>
+          <div class="notification-calendar-fields" data-calendar-fields hidden>
+            <label>
+              <span>Data</span>
+              <input type="date" name="evento_data" data-calendar-date>
+            </label>
+            <label>
+              <span>Horário</span>
+              <input type="time" name="evento_hora" data-calendar-time>
+            </label>
+          </div>
+        </div>
         <div class="notification-create-footer">
           <small><i class="ti ti-info-circle"></i> A notificação fica salva no banco e aparece no sino dos destinatários.</small>
           <button class="notification-action-btn primary" type="submit"><i class="ti ti-send"></i> Enviar notificação</button>

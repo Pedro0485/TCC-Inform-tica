@@ -8,6 +8,7 @@ const professorRouter = require('./api/routes/professorRoutes');
 const turmaRouter = require('./api/routes/turmaRoutes');
 const loginRouter = require('./api/routes/loginRoutes');
 const notificacaoRouter = require('./api/routes/notificacaoRoutes');
+const eventoRouter = require('./api/routes/eventoRoutes');
 
 const app = express();
 
@@ -54,6 +55,7 @@ app.use('/professor', professorRouter);
 app.use('/turmas', turmaRouter);
 app.use('/login', loginRouter);
 app.use('/notificacoes', notificacaoRouter);
+app.use('/eventos', eventoRouter);
 
 // Tratamento de erros do multer (arquivo inválido, tamanho excedido, etc.)
 app.use((err, req, res, next) => {
@@ -82,6 +84,68 @@ async function garantirTabelas() {
     console.log('[db] tabela materias_professores OK');
   } catch (err) {
     console.error('[db] não foi possível criar/verificar materias_professores:', err.message);
+  }
+
+  // Notificações: garante tabelas de destinos/lidas e os valores de ENUM
+  // (bancos criados antes dessas alterações não os têm; sem eles as turmas
+  // ficavam sem destino válido e nunca recebiam as notificações)
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS notificacoes_destinos (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        notificacao_id INT NOT NULL,
+        destino_tipo ENUM('todos','professores','turmas','professor','turma') NOT NULL,
+        destino_id INT NOT NULL DEFAULT 0,
+        CONSTRAINT fk_notificacoes_destinos_notificacao
+          FOREIGN KEY (notificacao_id) REFERENCES notificacoes(id) ON DELETE CASCADE,
+        UNIQUE KEY uk_notificacao_destino (notificacao_id, destino_tipo, destino_id),
+        INDEX idx_notificacoes_destinos_busca (destino_tipo, destino_id)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    `);
+
+    const enumDestino = "ENUM('todos','professores','turmas','professor','turma') NOT NULL";
+
+    await pool.query(`ALTER TABLE notificacoes_destinos MODIFY destino_tipo ${enumDestino}`);
+    await pool.query(`ALTER TABLE notificacoes MODIFY destino_tipo ${enumDestino}`);
+
+    await pool.query(`
+      INSERT INTO notificacoes_destinos (notificacao_id, destino_tipo, destino_id)
+      SELECT n.id, n.destino_tipo, COALESCE(n.destino_id, 0)
+      FROM notificacoes n
+      WHERE n.destino_tipo <> ''
+        AND NOT EXISTS (
+          SELECT 1 FROM notificacoes_destinos d WHERE d.notificacao_id = n.id
+        )
+    `);
+    console.log('[db] notificacoes_destinos OK');
+  } catch (err) {
+    console.error('[db] não foi possível verificar notificacoes_destinos:', err.message);
+  }
+
+  // Eventos do calendário (manuais ou gerados por notificações)
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS eventos (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        titulo VARCHAR(150) NOT NULL,
+        descricao TEXT NULL,
+        data_evento DATE NOT NULL,
+        hora_evento TIME NULL,
+        notificacao_id INT NULL,
+        criado_por_tipo ENUM('professor','turma') NOT NULL,
+        criado_por_id INT NOT NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        CONSTRAINT fk_eventos_notificacao
+          FOREIGN KEY (notificacao_id) REFERENCES notificacoes(id) ON DELETE CASCADE,
+        INDEX idx_eventos_data (data_evento),
+        INDEX idx_eventos_criador (criado_por_tipo, criado_por_id),
+        INDEX idx_eventos_notificacao (notificacao_id)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    `);
+    console.log('[db] tabela eventos OK');
+  } catch (err) {
+    console.error('[db] não foi possível criar/verificar eventos:', err.message);
   }
 }
 

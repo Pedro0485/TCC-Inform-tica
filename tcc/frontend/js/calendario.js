@@ -6,6 +6,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const isMobile = window.matchMedia('(max-width: 768px)').matches;
 
+    // Apenas a coordenadora (professor com admin) cria/edita/exclui eventos.
+    function ehCoordenador() {
+        try {
+            const payload = JSON.parse(
+                atob((localStorage.getItem('token') || '').split('.')[1]
+                    .replace(/-/g, '+').replace(/_/g, '/'))
+            );
+            return payload.tipo === 'professor' && Boolean(payload.admin);
+        } catch (e) {
+            return false;
+        }
+    }
+
+    const podeEditar = ehCoordenador();
+
     // Cores usadas para diferenciar os tipos de evento.
     const eventColors = {
         prova: '#e11233',
@@ -37,6 +52,100 @@ document.addEventListener('DOMContentLoaded', function () {
         return eventColors.evento;
     }
 
+    // ------------------------------------------------------------
+    // API
+    // ------------------------------------------------------------
+
+    async function api(url, options = {}) {
+
+        const token = localStorage.getItem('token') || '';
+
+        const headers = { 'Content-Type': 'application/json' };
+
+        if (token) {
+            headers.Authorization = `Bearer ${token}`;
+        }
+
+        const response = await fetch(url, {
+            ...options,
+            headers,
+            cache: 'no-store'
+        });
+
+        const data = await response.json().catch(() => null);
+
+        if (!response.ok) {
+            throw new Error(
+                data?.error || data?.message || `Erro HTTP ${response.status}`
+            );
+        }
+
+        return data;
+    }
+
+    function erroAlerta(err) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Erro',
+            text: err.message || 'Não foi possível concluir a operação.'
+        });
+    }
+
+    function paraEventoCalendario(ev) {
+
+        const cor = detectarCor(ev.titulo);
+
+        return {
+            id: String(ev.id),
+            title: ev.titulo,
+            start: ev.hora ? `${ev.data}T${ev.hora}` : ev.data,
+            allDay: !ev.hora,
+            backgroundColor: cor,
+            borderColor: cor,
+            editable: podeEditar && Boolean(ev.editavel),
+            extendedProps: {
+                descricao: ev.descricao || '',
+                editavel: Boolean(ev.editavel),
+                notificacaoId: ev.notificacao_id || null
+            }
+        };
+    }
+
+    async function carregarEventos() {
+
+        if (!localStorage.getItem('token')) return;
+
+        try {
+
+            const lista = await api('/eventos');
+
+            calendar.removeAllEvents();
+
+            (Array.isArray(lista) ? lista : []).forEach(ev => {
+                calendar.addEvent(paraEventoCalendario(ev));
+            });
+
+        } catch (err) {
+            console.error('[calendário] Erro ao carregar eventos:', err);
+        }
+    }
+
+    // ------------------------------------------------------------
+    // UTILITÁRIOS
+    // ------------------------------------------------------------
+
+    function dois(n) {
+        return String(n).padStart(2, '0');
+    }
+
+    function dataISO(data) {
+        return `${data.getFullYear()}-${dois(data.getMonth() + 1)}-${dois(data.getDate())}`;
+    }
+
+    function horaISO(data) {
+        return `${dois(data.getHours())}:${dois(data.getMinutes())}`;
+    }
+
     function formatarData(data) {
         return new Intl.DateTimeFormat('pt-BR', {
             day: '2-digit',
@@ -45,15 +154,39 @@ document.addEventListener('DOMContentLoaded', function () {
         }).format(data);
     }
 
-    function abrirNovoEvento(info) {
-        Swal.fire({
-            title: 'Novo evento',
+    function escapeHtml(text) {
+
+        const div = document.createElement('div');
+
+        div.textContent = text == null ? '' : String(text);
+
+        return div.innerHTML;
+    }
+
+    // ------------------------------------------------------------
+    // FORMULÁRIO (novo / edição)
+    // ------------------------------------------------------------
+
+    function abrirFormulario({ titulo, confirmar, valores }) {
+
+        return Swal.fire({
+            title: titulo,
             html: `
-                <input id="tituloEvento" class="swal2-input" placeholder="Nome do evento">
-                <input id="descricaoEvento" class="swal2-input" placeholder="Descrição (opcional)">
+                <input id="tituloEvento" class="swal2-input" maxlength="150"
+                    placeholder="Título do evento"
+                    value="${escapeHtml(valores.titulo)}">
+
+                <textarea id="descricaoEvento" class="swal2-textarea"
+                    placeholder="Descrição (opcional)">${escapeHtml(valores.descricao)}</textarea>
+
+                <input id="dataEvento" type="date" class="swal2-input"
+                    value="${escapeHtml(valores.data)}">
+
+                <input id="horaEvento" type="time" class="swal2-input"
+                    value="${escapeHtml(valores.hora)}">
             `,
             showCancelButton: true,
-            confirmButtonText: 'Criar evento',
+            confirmButtonText: confirmar,
             cancelButtonText: 'Cancelar',
             confirmButtonColor: '#e11233',
             cancelButtonColor: '#6c757d',
@@ -61,35 +194,59 @@ document.addEventListener('DOMContentLoaded', function () {
                 popup: 'meu-alerta'
             },
             preConfirm: () => {
+
                 const titulo = document.getElementById('tituloEvento').value.trim();
                 const descricao = document.getElementById('descricaoEvento').value.trim();
+                const data = document.getElementById('dataEvento').value;
+                const hora = document.getElementById('horaEvento').value;
 
                 if (!titulo) {
                     Swal.showValidationMessage('Digite um título para o evento');
                     return false;
                 }
 
-                return { titulo, descricao };
+                if (!data) {
+                    Swal.showValidationMessage('Selecione a data do evento');
+                    return false;
+                }
+
+                return { titulo, descricao, data, hora };
             }
-        }).then((result) => {
+        });
+    }
+
+    function abrirNovoEvento(info) {
+
+        abrirFormulario({
+            titulo: 'Novo evento',
+            confirmar: 'Criar evento',
+            valores: {
+                titulo: '',
+                descricao: '',
+                data: info.dateStr.slice(0, 10),
+                hora: info.dateStr.length > 10 ? info.dateStr.slice(11, 16) : ''
+            }
+        }).then(async (result) => {
+
             if (!result.isConfirmed) return;
 
-            const cor = detectarCor(result.value.titulo);
+            try {
 
-            calendar.addEvent({
-                title: result.value.titulo,
-                start: info.dateStr,
-                backgroundColor: cor,
-                borderColor: cor,
-                extendedProps: {
-                    descricao: result.value.descricao
-                }
-            });
+                const criado = await api('/eventos', {
+                    method: 'POST',
+                    body: JSON.stringify(result.value)
+                });
+
+                calendar.addEvent(paraEventoCalendario(criado));
+
+            } catch (err) {
+                return erroAlerta(err);
+            }
 
             if (window.NoctopusNotifications) {
                 window.NoctopusNotifications.add({
                     title: 'Novo evento no calendário',
-                    message: `${result.value.titulo} — ${info.dateStr.split('-').reverse().join('/')}`,
+                    message: `${result.value.titulo} — ${result.value.data.split('-').reverse().join('/')}`,
                     type: 'calendar',
                     url: location.href
                 });
@@ -106,16 +263,30 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function abrirDetalhesEvento(info) {
+
         const evento = info.event;
-        const descricao = evento.extendedProps.descricao || 'Nenhuma descrição cadastrada.';
+        const editavel = podeEditar && Boolean(evento.extendedProps.editavel);
+
+        const descricao = evento.extendedProps.descricao
+            ? escapeHtml(evento.extendedProps.descricao).replace(/\n/g, '<br>')
+            : 'Nenhuma descrição cadastrada.';
+
         const data = evento.start ? formatarData(evento.start) : 'Data não informada';
 
+        const horario = evento.allDay
+            ? 'Dia inteiro'
+            : horaISO(evento.start);
+
         Swal.fire({
-            title: evento.title,
+            title: escapeHtml(evento.title),
             html: `
                 <div style="text-align:left; line-height:1.6;">
                     <p style="margin-bottom:8px;">
                         <strong>Data:</strong> ${data}
+                    </p>
+
+                    <p style="margin-bottom:8px;">
+                        <strong>Horário:</strong> ${horario}
                     </p>
 
                     <p style="margin:0;">
@@ -124,7 +295,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     </p>
                 </div>
             `,
-            showDenyButton: true,
+            showDenyButton: editavel,
+            showConfirmButton: editavel,
             showCancelButton: true,
             confirmButtonText: 'Editar',
             denyButtonText: 'Excluir',
@@ -148,87 +320,38 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function editarEvento(evento) {
 
-        Swal.fire({
-            title: 'Editar evento',
-
-            html: `
-                <input 
-                    id="tituloEvento" 
-                    class="swal2-input" 
-                    value="${escapeHtml(evento.title)}"
-                    placeholder="Nome do evento"
-                >
-
-                <input 
-                    id="descricaoEvento" 
-                    class="swal2-input" 
-                    value="${escapeHtml(evento.extendedProps.descricao || '')}"
-                    placeholder="Descrição"
-                >
-            `,
-
-            showCancelButton: true,
-            confirmButtonText: 'Salvar alterações',
-            cancelButtonText: 'Cancelar',
-
-            confirmButtonColor: '#e11233',
-            cancelButtonColor: '#6c757d',
-
-            customClass: {
-                popup: 'meu-alerta'
-            },
-
-            preConfirm: () => {
-
-                const titulo = document
-                    .getElementById('tituloEvento')
-                    .value
-                    .trim();
-
-                const descricao = document
-                    .getElementById('descricaoEvento')
-                    .value
-                    .trim();
-
-                if (!titulo) {
-                    Swal.showValidationMessage(
-                        'Digite um título para o evento'
-                    );
-
-                    return false;
-                }
-
-                return {
-                    titulo,
-                    descricao
-                };
+        abrirFormulario({
+            titulo: 'Editar evento',
+            confirmar: 'Salvar alterações',
+            valores: {
+                titulo: evento.title,
+                descricao: evento.extendedProps.descricao || '',
+                data: evento.start ? dataISO(evento.start) : '',
+                hora: evento.start && !evento.allDay ? horaISO(evento.start) : ''
             }
-
-        }).then((result) => {
+        }).then(async (result) => {
 
             if (!result.isConfirmed) return;
 
-            const cor = detectarCor(result.value.titulo);
+            try {
 
-            evento.setProp(
-                'title',
-                result.value.titulo
-            );
+                const atualizado = await api(`/eventos/${evento.id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(result.value)
+                });
 
-            evento.setProp(
-                'backgroundColor',
-                cor
-            );
+                const novo = paraEventoCalendario(atualizado);
 
-            evento.setProp(
-                'borderColor',
-                cor
-            );
+                evento.setProp('title', novo.title);
+                evento.setProp('backgroundColor', novo.backgroundColor);
+                evento.setProp('borderColor', novo.borderColor);
+                evento.setExtendedProp('descricao', novo.extendedProps.descricao);
+                evento.setAllDay(novo.allDay);
+                evento.setStart(novo.start);
 
-            evento.setExtendedProp(
-                'descricao',
-                result.value.descricao
-            );
+            } catch (err) {
+                return erroAlerta(err);
+            }
 
             Swal.fire({
                 icon: 'success',
@@ -260,11 +383,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 popup: 'meu-alerta'
             }
 
-        }).then((result) => {
+        }).then(async (result) => {
 
             if (!result.isConfirmed) return;
 
-            evento.remove();
+            try {
+
+                await api(`/eventos/${evento.id}`, { method: 'DELETE' });
+
+                evento.remove();
+
+            } catch (err) {
+                return erroAlerta(err);
+            }
 
             Swal.fire({
                 icon: 'success',
@@ -275,13 +406,27 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    function escapeHtml(text) {
+    // Arrastar um evento para outro dia/horário
+    async function moverEvento(info) {
 
-        const div = document.createElement('div');
+        const evento = info.event;
 
-        div.textContent = text;
+        try {
 
-        return div.innerHTML;
+            await api(`/eventos/${evento.id}`, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    titulo: evento.title,
+                    descricao: evento.extendedProps.descricao || '',
+                    data: dataISO(evento.start),
+                    hora: evento.allDay ? '' : horaISO(evento.start)
+                })
+            });
+
+        } catch (err) {
+            info.revert();
+            erroAlerta(err);
+        }
     }
 
     const calendar = new FullCalendar.Calendar(calendarEl, {
@@ -304,7 +449,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         dayMaxEvents: 3,
 
-        editable: true,
+        editable: podeEditar,
 
         selectable: false,
 
@@ -341,7 +486,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         ],
 
+        eventDrop: moverEvento,
+
         dateClick: function (info) {
+
+            if (!podeEditar) return;
 
             abrirNovoEvento(info);
 
@@ -357,5 +506,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     calendar.render();
+
+    carregarEventos();
 
 });
