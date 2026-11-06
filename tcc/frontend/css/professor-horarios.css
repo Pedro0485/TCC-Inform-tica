@@ -1,0 +1,13 @@
+.horarios-semana{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.horarios-dia{background:#fafafa;border:1px solid #ececec;border-radius:12px;padding:10px;min-width:0}
+.horarios-dia h3{margin:0 0 10px;font-size:14px;color:#e11233;text-align:center}
+.horarios-aula{background:#fff;border:1px solid #ececec;border-left:4px solid #e11233;border-radius:8px;padding:8px 10px;margin-bottom:8px;font-size:13px;line-height:1.4;overflow-wrap:anywhere}
+.horarios-aula strong{display:block;font-size:13px}
+.horarios-hora{font-weight:600;color:#e11233}
+.horarios-meta{color:#777;font-size:12px}
+.horarios-vazio{color:#999;font-size:13px;text-align:center;padding:8px 0;grid-column:1/-1}
+body.dark-theme .horarios-dia{background:#242424;border-color:#383838}
+body.dark-theme .horarios-aula{background:#1c1c1c;border-color:#383838;border-left-color:#e11233}
+body.dark-theme .horarios-meta{color:#aaa}
+@media (max-width:1100px){.horarios-semana{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:600px){.horarios-semana{grid-template-columns:1fr}}
