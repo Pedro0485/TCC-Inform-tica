@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dashboard</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+  <link rel="stylesheet" href="../../css/coordenador.css?v=3">
+  <link rel="shortcut icon" href="../../assets/images/logo.png" type="image/x-icon">
+  <link rel="stylesheet" href="../../css/shared/notificacoes-sino.css?v=3">
+  <link rel="stylesheet" href="../../css/shared/mobile-experience.css?v=5">
+</head>
+<body>
+
+<div class="page">
+  <aside class="sidebar">
+
+    <div class="logo">
+      <i class="ti ti-school"></i>
+      <span>Professor</span>
+    </div>
+  
+    <nav>
+      <a class="nav-item active" href="professor-home.html">
+        <i class="ti ti-bell"></i>
+        <span>Notificações</span>
+      </a>
+
+      <a class="nav-item" href="professor-horarios.html">
+        <i class="ti ti-clock"></i>
+        <span>Horários de Aulas</span>
+      </a>
+
+      <a class="nav-item" href="professor-calendario.html">
+        <i class="ti ti-calendar"></i>
+        <span>Calendário</span>
+      </a>
+
+      <a class="nav-item" href="professor-configuracoes.html">
+        <i class="ti ti-settings"></i>
+        <span>Configurações</span>
+      </a>
+
+      <a class="nav-item nav-logout" href="#">
+      <i class="ti ti-logout"></i>
+      <span>Sair</span>
+      </a>
+
+    </nav>
+  
+    
+  
+  </aside>
+ 
+  <main class="main">
+    <div class="card">
+      <h2 class="card-title">Notificações Recentes</h2>
+      <div class="notifications-actions">
+        <button class="notification-action-btn primary" type="button" data-notification-permission>Ativar notificações no dispositivo</button>
+        <button class="notification-action-btn" type="button" data-notification-read-all>Marcar todas como lidas</button>
+        <button class="notification-action-btn" type="button" data-notification-clear>Limpar</button>
+      </div>
+      <div class="notification-filters" role="group" aria-label="Filtrar notificações">
+        <button type="button" class="notification-filter-btn active" data-notification-filter="all" aria-pressed="true">Todas</button>
+        <button type="button" class="notification-filter-btn" data-notification-filter="unread" aria-pressed="false">Não lidas</button>
+        <button type="button" class="notification-filter-btn" data-notification-filter="read" aria-pressed="false">Lidas</button>
+      </div>
+      <div class="notifications-list" data-notifications-list>
+        <div class="empty-state">
+          <i class="ti ti-bell-off"></i>
+          <span>Nenhuma notificação recente</span>
+        </div>
+      </div>
+    </div> 
+  </main>
+</div>
+ 
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="../../js/notification-center.js?v=3"></script>
+<script src="../../js/shared/usuario-logado.js"></script>
+  <script src="../../js/shared/mobile-experience.js?v=5"></script>
+</body>
+</html>
+

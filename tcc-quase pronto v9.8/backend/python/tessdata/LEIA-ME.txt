@@ -1,0 +1,4 @@
+por.traineddata = modelo de português do Tesseract ("tessdata_fast", licença Apache 2.0,
+https://github.com/tesseract-ocr/tessdata_fast). Vai junto no projeto só para facilitar a
+instalação: no servidor basta ter o binário `tesseract` instalado.
+Para usar outro diretório, defina HORARIOS_TESSDATA_DIR no .env.

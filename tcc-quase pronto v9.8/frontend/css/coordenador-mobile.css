@@ -1,0 +1,558 @@
+/* ============================================================
+   COORDENADOR - Mobile Responsive
+   ============================================================ */
+
+/* ============================================================
+   COORDENADOR - CRIAÇÃO DE NOTIFICAÇÕES
+   ============================================================ */
+
+   .notification-create-card {
+    margin-bottom: 16px;
+  }
+  
+  .notification-create-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+  
+  .notification-create-heading > i {
+    font-size: 28px;
+    opacity: 0.7;
+    flex-shrink: 0;
+  }
+  
+  .notification-create-heading p {
+    margin: 4px 0 0;
+    opacity: 0.7;
+    font-size: 14px;
+  }
+  
+  .notification-create-heading .eyebrow {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    opacity: 0.6;
+    text-transform: uppercase;
+  }
+  
+  .notification-create-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-weight: 600;
+    font-size: 13px;
+  }
+  
+  .notification-form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .notification-create-form input,
+  .notification-create-form select,
+  .notification-create-form textarea {
+    width: 100%;
+    border: 1px solid rgba(100, 116, 139, 0.25);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font: inherit;
+    font-size: 15px;
+    background: #fff;
+    color: inherit;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+    min-height: 44px;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  
+  .notification-create-form select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+  }
+  
+  .notification-create-form input:focus,
+  .notification-create-form select:focus,
+  .notification-create-form textarea:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+  }
+  
+  .notification-create-form textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+  
+  .notification-message-field {
+    margin-top: 12px;
+  }
+  
+  .notification-create-footer {
+    display: flex;
+    align-items: stretch;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 14px;
+  }
+  
+  .notification-create-footer small {
+    opacity: 0.7;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+  }
+  
+  .notification-create-footer .notification-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 48px;
+    font-size: 14px;
+    padding: 12px 20px;
+  }
+  
+  /* ============================================================
+     COORDENADOR - SALAS
+     ============================================================ */
+  
+  .card-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 0.75rem;
+  }
+  
+  .btn-upload-horarios {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 10px;
+    background: #e11233;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    min-height: 44px;
+    transition: filter 0.15s;
+    touch-action: manipulation;
+  }
+  
+  .btn-upload-horarios:active {
+    transform: scale(0.97);
+  }
+  
+  .btn-upload-horarios i {
+    font-size: 16px;
+  }
+  
+  .turnos-nav {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+    justify-content: center;
+  }
+  
+  .turno-btn {
+    padding: 6px 14px;
+    border: none;
+    background: none;
+    font-size: 13px;
+    color: #888;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.15s;
+    font-family: inherit;
+    min-height: 40px;
+    touch-action: manipulation;
+  }
+  
+  .turno-btn:active {
+    transform: scale(0.95);
+  }
+  
+  .turno-btn.active {
+    color: #e11233;
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  
+  .separador {
+    color: #ccc;
+    line-height: 40px;
+    font-size: 14px;
+  }
+  
+  .turmas-section {
+    display: none;
+  }
+  
+  .turmas-section.visible {
+    display: block;
+  }
+  
+  .cursos-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .curso-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  
+  .curso-row .curso-label {
+    font-weight: 600;
+    font-size: 13px;
+    color: #555;
+    min-width: 100px;
+  }
+  
+  .turma-wrapper {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .turma-btn {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: filter 0.15s;
+    font-family: inherit;
+    min-height: 44px;
+    min-width: 120px;
+    touch-action: manipulation;
+  }
+  
+  .turma-btn:active {
+    transform: scale(0.96);
+  }
+  
+  .del-turma-btn {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0,0,0,0.30);
+    color: white;
+    font-size: 11px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+    z-index: 1;
+  }
+  
+  .del-turma-btn:active {
+    transform: scale(0.9);
+  }
+  
+  .badge-aulas {
+    font-size: 9px;
+    background: rgba(255,255,255,0.25);
+    color: white;
+    border-radius: 999px;
+    padding: 1px 6px;
+    margin-left: 6px;
+    font-weight: 600;
+  }
+  
+  /* Grade de horários no modal */
+  .grade-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -4px;
+  }
+  
+  .grade {
+    width: 100%;
+    min-width: 560px;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  
+  .grade th,
+  .grade td {
+    border: 1px solid #e0e0e0;
+    padding: 6px 8px;
+    text-align: center;
+    min-width: 70px;
+  }
+  
+  .grade th {
+    background: #f5f5f5;
+    font-weight: 600;
+    color: #444;
+  }
+  
+  .grade td:first-child {
+    font-weight: 600;
+    color: #555;
+    background: #fafafa;
+    min-width: 60px;
+  }
+  
+  .hora-cell select {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    color: #333;
+    outline: none;
+    padding: 4px 2px;
+    min-height: 32px;
+  }
+  
+  .hora-cell.filled {
+    background: #fff8f9;
+  }
+  
+  .hora-cell.filled select {
+    color: #e11233;
+    font-weight: 600;
+  }
+  
+  /* Upload dropzone */
+  .upload-dropzone {
+    border: 2px dashed #ccc;
+    border-radius: 12px;
+    padding: 2rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    background: #fafafa;
+    touch-action: manipulation;
+  }
+  
+  .upload-dropzone:active {
+    transform: scale(0.98);
+  }
+  
+  .upload-icon {
+    font-size: 32px;
+    color: #999;
+    margin-bottom: 8px;
+    display: block;
+  }
+  
+  .upload-texto {
+    font-size: 13px;
+    color: #555;
+    margin: 0 0 4px;
+  }
+  
+  .upload-link {
+    color: #e11233;
+    font-weight: 600;
+    text-decoration: underline;
+  }
+  
+  .upload-hint {
+    font-size: 11px;
+    color: #999;
+    margin: 0;
+  }
+  
+  .upload-filename {
+    margin: 10px 0 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: #e11233;
+    word-break: break-all;
+  }
+  
+  /* ============================================================
+     COORDENADOR - USUÁRIOS (Tabelas)
+     ============================================================ */
+  
+  .tabela-usuarios-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -4px;
+    padding: 0 4px;
+  }
+  
+  .tabela-usuarios {
+    width: 100%;
+    min-width: 500px;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  
+  .tabela-usuarios th,
+  .tabela-usuarios td {
+    text-align: left;
+    padding: 10px 8px;
+    border-bottom: 1px solid #eee;
+    white-space: nowrap;
+  }
+  
+  .tabela-usuarios th {
+    color: #888;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+  }
+  
+  .tabela-usuarios td.col-acoes {
+    text-align: right;
+    white-space: nowrap;
+  }
+  
+  .btn-icon {
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #888;
+    padding: 6px 8px;
+    border-radius: 8px;
+    transition: background 0.15s, color 0.15s;
+    min-height: 40px;
+    min-width: 40px;
+    touch-action: manipulation;
+  }
+  
+  .btn-icon:active {
+    transform: scale(0.9);
+  }
+  
+  .btn-icon.btn-danger:hover {
+    color: #e11233;
+    background: #fff0f2;
+  }
+  
+  .badge-admin {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  
+  .badge-admin.sim {
+    background: #e6f4ea;
+    color: #1a7a35;
+  }
+  
+  .badge-admin.nao {
+    background: #f1f1f1;
+    color: #888;
+  }
+  
+  .card + .card {
+    margin-top: 12px;
+  }
+  
+  /* ============================================================
+     COORDENADOR - BREAKPOINTS
+     ============================================================ */
+  
+  /* Tablet e acima */
+  @media (min-width: 768px) {
+    .notification-form-grid {
+      grid-template-columns: 1fr;
+    }
+  
+    .notification-create-footer {
+      flex-direction: row;
+      align-items: center;
+    }
+  
+    .card-header-row .btn-config {
+      width: auto;
+    }
+  
+    .tabela-usuarios {
+      min-width: auto;
+    }
+  }
+  
+  /* ============================================================
+     COORDENADOR - TEMA ESCURO
+     ============================================================ */
+  
+  html[data-tema="escuro"] body .grade th {
+    background: #2a2a2a;
+    color: #ccc;
+  }
+  
+  html[data-tema="escuro"] body .grade td {
+    border-color: #333;
+    color: #ddd;
+  }
+  
+  html[data-tema="escuro"] body .grade td:first-child {
+    background: #222;
+    color: #aaa;
+  }
+  
+  html[data-tema="escuro"] body .hora-cell.filled {
+    background: #2a1a1e;
+  }
+  
+  html[data-tema="escuro"] body .tabela-usuarios th,
+  html[data-tema="escuro"] body .tabela-usuarios td {
+    border-color: #333;
+    color: #ddd;
+  }
+  
+  html[data-tema="escuro"] body .upload-dropzone {
+    background: #1a1a1a;
+    border-color: #444;
+  }
+  
+  html[data-tema="escuro"] body .upload-texto {
+    color: #aaa;
+  }
+  
+  html[data-tema="escuro"] body .tabela-usuarios th {
+    color: #aaa;
+  }
+  
+  html[data-tema="escuro"] body .badge-admin.nao {
+    background: #333;
+    color: #aaa;
+  }
+  
+  html[data-tema="escuro"] body .curso-row .curso-label {
+    color: #aaa;
+  }
+
+@media (max-width: 768px) {
+  .edit-turma-btn {
+    position: absolute; top: -6px; left: -6px; width: 20px; height: 20px;
+    border-radius: 50%; border: none; background: rgba(0,0,0,0.30); color: white;
+    font-size: 12px; line-height: 1; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; z-index: 1;
+  }
+}

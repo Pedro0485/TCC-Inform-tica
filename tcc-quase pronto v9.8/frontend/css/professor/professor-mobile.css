@@ -1,0 +1,204 @@
+/* ============================================================
+   PROFESSOR - Mobile Responsive
+   ============================================================ */
+
+/* ============================================================
+   PROFESSOR - CONFIGURAÇÕES
+   ============================================================ */
+
+   .professor-config .config-section {
+    background: #f8f9fa;
+    padding: 16px;
+    border-radius: 12px;
+  }
+  
+  .professor-config .config-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  
+  .professor-config .config-item:last-child {
+    margin-bottom: 0;
+  }
+  
+  .professor-config .config-item > span {
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  .professor-config .config-item input[type="text"],
+  .professor-config .config-item input[type="email"] {
+    padding: 12px 14px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    width: 100%;
+    font-size: 15px;
+    min-height: 44px;
+    background: #fff;
+  }
+  
+  .professor-config .config-item:has(.switch) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .professor-config .config-item:has(.switch) > span {
+    font-size: 14px;
+  }
+  
+  /* ============================================================
+     PROFESSOR - NOTIFICAÇÕES
+     ============================================================ */
+  
+  .professor-notificacoes .notification-card {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 14px;
+    border: 1px solid #ededed;
+    border-radius: 12px;
+    background: #fff;
+  }
+  
+  .professor-notificacoes .notification-card.unread {
+    border-color: #f3b7c1;
+    background: #fff8f9;
+  }
+  
+  .professor-notificacoes .notification-card-icon {
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    border-radius: 12px;
+    background: #fdecef;
+    color: #e11233;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .professor-notificacoes .notification-card-icon i {
+    font-size: 18px;
+  }
+  
+  .professor-notificacoes .notification-card-content {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .professor-notificacoes .notification-card-content h3 {
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 4px;
+  }
+  
+  .professor-notificacoes .notification-card-content p {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.45;
+    word-wrap: break-word;
+  }
+  
+  .professor-notificacoes .notification-card-content time {
+    display: block;
+    margin-top: 6px;
+    font-size: 10px;
+    color: #999;
+  }
+  
+  /* ============================================================
+     PROFESSOR - CALENDÁRIO
+     ============================================================ */
+  
+  .professor-calendario #calendar {
+    background: transparent;
+    padding: 4px;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  
+  .professor-calendario .fc .fc-toolbar {
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  
+  .professor-calendario .fc .fc-toolbar-title {
+    font-size: 1rem !important;
+  }
+  
+  .professor-calendario .fc .fc-button {
+    padding: 0.4em 0.65em !important;
+    font-size: 12px !important;
+    min-height: 36px;
+    min-width: 36px;
+    border-radius: 8px !important;
+  }
+  
+  /* ============================================================
+     PROFESSOR - BREAKPOINTS
+     ============================================================ */
+  
+  /* Tablet e acima */
+  @media (min-width: 768px) {
+    .professor-config .config-item {
+      flex-direction: row;
+      align-items: center;
+      gap: 15px;
+    }
+  
+    .professor-config .config-item input[type="text"],
+    .professor-config .config-item input[type="email"] {
+      width: 250px;
+    }
+  
+    .professor-config .btn-config {
+      width: auto;
+    }
+  }
+  
+  /* ============================================================
+     PROFESSOR - TEMA ESCURO
+     ============================================================ */
+  
+  html[data-tema="escuro"] body .professor-config .config-section {
+    background: #262626;
+  }
+  
+  html[data-tema="escuro"] body .professor-config .config-item > span {
+    color: #eee;
+  }
+  
+  html[data-tema="escuro"] body .professor-config input,
+  html[data-tema="escuro"] body .professor-config select,
+  html[data-tema="escuro"] body .professor-config textarea {
+    background: #2a2a2a;
+    color: #eee;
+    border-color: #444;
+  }
+  
+  html[data-tema="escuro"] body .professor-notificacoes .notification-card {
+    background: #232323;
+    border-color: #3a3a3a;
+    color: #eee;
+  }
+  
+  html[data-tema="escuro"] body .professor-notificacoes .notification-card.unread {
+    background: #3b2529;
+    border-color: #5a3a40;
+  }
+  
+  html[data-tema="escuro"] body .professor-notificacoes .notification-card-content h3 {
+    color: #eee;
+  }
+  
+  html[data-tema="escuro"] body .professor-notificacoes .notification-card-content p {
+    color: #aaa;
+  }
+  
+  html[data-tema="escuro"] body .professor-notificacoes .notification-card-content time {
+    color: #777;
+  }

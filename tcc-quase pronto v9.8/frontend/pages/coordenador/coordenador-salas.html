@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Salas - Coordenador</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+  <link rel="stylesheet" href="../../css/coordenador.css?v=3">
+  <link rel="shortcut icon" href="../../assets/images/logo.png" type="image/x-icon">
+  <link rel="stylesheet" href="../../css/coordenador-salas.css?v=3">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="stylesheet" href="../../css/shared/notificacoes-sino.css?v=3">
+  <link rel="stylesheet" href="../../css/shared/mobile-experience.css?v=5">
+</head>
+<body>
+
+<div class="page">
+  <aside class="sidebar">
+    <div class="logo">
+      <i class="ti ti-school"></i>
+      <span>Coordenador</span>
+    </div>
+    <nav>
+      <a class="nav-item" href="coordenador-home.html">
+        <i class="ti ti-bell"></i>
+        <span>Notificações</span>
+      </a>
+      <a class="nav-item" href="coordenador-calendario.html">
+        <i class="ti ti-calendar"></i>
+        <span>Calendário</span>
+      </a>
+            <a class="nav-item" href="coordenador-importar-horarios.html">
+        <i class="ti ti-file-import"></i>
+        <span>Importar horários por PDF</span>
+      </a>
+<a class="nav-item active" href="coordenador-salas.html">
+        <i class="ti ti-door"></i>
+        <span>Salas</span>
+      </a>
+      <a class="nav-item" href="coordenador-usuarios.html">
+        <i class="ti ti-users"></i>
+        <span>Usuários</span>
+      </a>
+      <a class="nav-item" href="coordenador-configuracoes.html">
+        <i class="ti ti-settings"></i>
+        <span>Configurações</span>
+      </a>
+      <a class="nav-item nav-logout" href="#">
+        <i class="ti ti-logout"></i>
+        <span>Sair</span>
+      </a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="card">
+      <div class="card-header-row">
+        <h2 class="card-title">Salas</h2>
+        <div class="header-actions">
+          <button class="btn-criar-turma" onclick="abrirModalCriarTurma()">
+            <i class="ti ti-plus"></i>
+            <span>Criar turma</span>
+          </button>
+          <button class="btn-upload-horarios" onclick="abrirModalHorariosTurno()">
+            <i class="ti ti-clock-edit"></i>
+            <span>Horários dos turnos</span>
+          </button>
+          <button class="btn-upload-horarios" onclick="abrirModalCursos()">
+            <i class="ti ti-school"></i>
+            <span>Cursos</span>
+          </button>
+          <button class="btn-upload-horarios" onclick="abrirModalMaterias()">
+            <i class="ti ti-book"></i>
+            <span>Matérias</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Seletor de turnos -->
+      <div class="turnos-nav">
+        <button class="turno-btn" onclick="setTurno('matutino')">Matutino</button>
+        <span class="separador">|</span>
+        <button class="turno-btn active" onclick="setTurno('integral')">Integral</button>
+        <span class="separador">|</span>
+        <button class="turno-btn" onclick="setTurno('vespertino')">Vespertino</button>
+        <span class="separador">|</span>
+        <button class="turno-btn" onclick="setTurno('noturno')">Noturno</button>
+      </div>
+
+      <!-- Seções por turno -->
+      <div id="sec-matutino" class="turmas-section"></div>
+      <div id="sec-integral" class="turmas-section visible"></div>
+      <div id="sec-vespertino" class="turmas-section"></div>
+      <div id="sec-noturno" class="turmas-section"></div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal de horários da turma -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-title">Horários da Turma</h3>
+      <button class="modal-close" onclick="fecharModal()">✕</button>
+    </div>
+    <div class="grade-wrapper">
+      <table class="grade" id="grade-table">
+        <thead>
+          <tr>
+            <th>Horário</th>
+            <th>Segunda</th>
+            <th>Terça</th>
+            <th>Quarta</th>
+            <th>Quinta</th>
+            <th>Sexta</th>
+          </tr>
+        </thead>
+        <tbody id="grade-body"></tbody>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="fecharModal()">Cancelar</button>
+      <button class="btn-save" onclick="salvarHorarios()">Salvar horários</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de criação de turma -->
+<div class="modal-overlay" id="modal-criar-overlay">
+  <div class="modal modal-criar">
+    <div class="modal-header">
+      <h3>Criar turma</h3>
+      <button class="modal-close" onclick="fecharModalCriarTurma()">✕</button>
+    </div>
+
+    <div class="criar-secao-titulo">1. Dados e login da turma</div>
+    <div class="criar-form-grid">
+      <label class="criar-campo">
+        <span>Curso</span>
+        <div class="criar-codigo-row">
+          <select id="criar-curso"></select>
+          <button type="button" class="btn-gerar-codigo" onclick="adicionarCurso()" title="Adicionar novo curso">
+            <i class="ti ti-plus"></i>
+          </button>
+        </div>
+      </label>
+      <label class="criar-campo">
+        <span>Ano</span>
+        <select id="criar-ano">
+          <option value="" selected disabled hidden>Selecione o ano</option>
+          <option value="1">1º Ano</option>
+          <option value="2">2º Ano</option>
+          <option value="3">3º Ano</option>
+        </select>
+      </label>
+      <label class="criar-campo">
+        <span>Turno</span>
+        <select id="criar-turno" onchange="montarGradeCriar()">
+          <option value="matutino">Matutino</option>
+          <option value="integral" selected>Integral</option>
+          <option value="vespertino">Vespertino</option>
+          <option value="noturno">Noturno</option>
+        </select>
+      </label>
+      <label class="criar-campo">
+        <span>Código de login (senha da turma)</span>
+        <div class="criar-codigo-row">
+          <input type="text" id="criar-codigo" minlength="4" maxlength="20" placeholder="Ex: Info2026" autocomplete="off" />
+        </div>
+      </label>
+    </div>
+    <p class="criar-hint">Os alunos entram com <strong>curso + ano + código</strong> (letras e números, diferencia maiúsculas de minúsculas) na tela de login de turmas.</p>
+
+    <div class="criar-secao-titulo">2. Horários da turma</div>
+    <div class="grade-wrapper">
+      <table class="grade">
+        <thead>
+          <tr>
+            <th>Horário</th><th>Segunda</th><th>Terça</th><th>Quarta</th><th>Quinta</th><th>Sexta</th>
+          </tr>
+        </thead>
+        <tbody id="criar-grade-body"></tbody>
+      </table>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="fecharModalCriarTurma()">Cancelar</button>
+      <button class="btn-save" id="btn-criar-confirmar" onclick="criarTurma()">Criar turma</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de edição da turma (código de login e cor) -->
+<div class="modal-overlay" id="modal-editar-overlay">
+  <div class="modal modal-upload">
+    <div class="modal-header">
+      <h3 id="editar-titulo">Editar turma</h3>
+      <button class="modal-close" onclick="fecharModalEditarTurma()">✕</button>
+    </div>
+
+    <div class="criar-secao-titulo">Código de login</div>
+    <label class="criar-campo">
+      <span>Código (senha da turma)</span>
+      <div class="criar-codigo-row">
+        <input type="text" id="editar-codigo" minlength="4" maxlength="20" autocomplete="off" />
+        <button type="button" class="btn-gerar-codigo" onclick="copiarCodigoEditar()" title="Copiar código">
+          <i class="ti ti-copy"></i>
+        </button>
+      </div>
+    </label>
+    <p class="criar-hint">Os alunos entram com <strong>curso + ano + código</strong>. Ao trocar o código, o antigo para de funcionar.</p>
+
+    <div class="criar-secao-titulo">Cor da turma</div>
+    <div class="cor-editor">
+      <div class="cor-swatches" id="editar-cores"></div>
+      <div class="cor-custom-row">
+        <input type="color" id="editar-cor-input" value="#555555" />
+        <button type="button" class="btn-cancel" onclick="usarCorDoCurso()">Usar cor do curso</button>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="fecharModalEditarTurma()">Cancelar</button>
+      <button class="btn-save" id="btn-editar-salvar" onclick="salvarEdicaoTurma()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de cursos -->
+<div class="modal-overlay" id="modal-cursos-overlay">
+  <div class="modal modal-upload">
+    <div class="modal-header">
+      <h3>Cursos</h3>
+      <button class="modal-close" onclick="fecharModalCursos()">✕</button>
+    </div>
+    <div class="materia-add-row">
+      <input type="text" id="curso-novo" placeholder="Nome do novo curso" maxlength="60" autocomplete="off" />
+      <button type="button" class="btn-save" onclick="adicionarCursoModal()"><i class="ti ti-plus"></i> Adicionar</button>
+    </div>
+    <div class="materias-contador" id="cursos-contador"></div>
+    <ul class="materias-lista" id="cursos-lista"></ul>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="fecharModalCursos()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de matérias -->
+<div class="modal-overlay" id="modal-materias-overlay">
+  <div class="modal modal-upload">
+    <div class="modal-header">
+      <h3>Matérias</h3>
+      <button class="modal-close" onclick="fecharModalMaterias()">✕</button>
+    </div>
+    <div class="materia-add-row">
+      <input type="text" id="materia-nova" placeholder="Nome da nova matéria" maxlength="80" autocomplete="off" />
+      <button type="button" class="btn-save" onclick="adicionarMateria()"><i class="ti ti-plus"></i> Adicionar</button>
+    </div>
+    <div class="criar-campo materia-prof-campo">
+      <span>Professor da matéria (opcional) — marcando mais de um, cada um vira uma linha</span>
+      <div class="prof-checklist" id="materia-prof-lista"></div>
+    </div>
+    <div class="materias-contador" id="materias-contador"></div>
+    <ul class="materias-lista" id="materias-lista"></ul>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="fecharModalMaterias()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de edição dos horários dos turnos -->
+<div class="modal-overlay" id="modal-turnos-overlay">
+  <div class="modal modal-turnos">
+    <div class="modal-header">
+      <h3>Horários dos turnos</h3>
+      <button class="modal-close" onclick="fecharModalHorariosTurno()">✕</button>
+    </div>
+    <div id="turnos-editor" class="turnos-editor"></div>
+    <p class="criar-hint">Os horários valem para as grades abertas daqui para frente. Aulas já salvas não mudam.</p>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="fecharModalHorariosTurno()">Cancelar</button>
+      <button class="btn-save" onclick="salvarHorariosTurno()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script src="../../js/coordenador-salas.js?v=14"></script>
+
+  <script src="../../js/notification-center.js?v=3"></script>
+<script src="../../js/shared/usuario-logado.js"></script>
+  <script src="../../js/shared/mobile-experience.js?v=5"></script>
+</body>
+</html>
+
