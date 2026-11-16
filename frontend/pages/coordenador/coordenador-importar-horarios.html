@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Horários - Coordenador</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+  <link rel="stylesheet" href="../../css/shared/painel.css?v=3">
+  <link rel="stylesheet" href="../../css/shared/animacoes.css?v=3">
+  <link rel="stylesheet" href="../../css/coordenador/coordenador-horarios.css?v=3">
+  <link rel="stylesheet" href="../../css/shared/horarios-consulta.css?v=3">
+  <link rel="shortcut icon" href="../../assets/images/logo.png" type="image/x-icon">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="stylesheet" href="../../css/shared/notificacoes-sino.css?v=3">
+  <link rel="stylesheet" href="../../css/shared/mobile-experience.css?v=5">
+</head>
+<body>
+
+<div class="page">
+  <aside class="sidebar">
+    <div class="logo">
+      <i class="ti ti-school"></i>
+      <span>Coordenador</span>
+    </div>
+    <nav>
+      <a class="nav-item" href="coordenador-home.html"><i class="ti ti-bell"></i><span>Notificações</span></a>
+      <a class="nav-item" href="coordenador-calendario.html"><i class="ti ti-calendar"></i><span>Calendário</span></a>
+      <a class="nav-item active" href="coordenador-importar-horarios.html"><i class="ti ti-file-import"></i><span>Importar horários por PDF</span></a>
+      <a class="nav-item" href="coordenador-salas.html"><i class="ti ti-door"></i><span>Salas</span></a>
+      <a class="nav-item" href="coordenador-codigos-salas.html"><i class="ti ti-key"></i><span>C&#243;digos das salas</span></a>
+      <a class="nav-item" href="coordenador-usuarios.html"><i class="ti ti-users"></i><span>Usuários</span></a>
+      <a class="nav-item" href="coordenador-configuracoes.html"><i class="ti ti-settings"></i><span>Configurações</span></a>
+      <a class="nav-item nav-logout" href="#"><i class="ti ti-logout"></i><span>Sair</span></a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <!-- ============ 1. ENVIO ============ -->
+    <section class="card hz-card" id="card-envio">
+      <h2 class="card-title">Importar horários por PDF</h2>
+      <p class="hz-ajuda">Envie o PDF exportado do sistema de horários. O sistema lê as grades, mostra o que encontrou
+        para você conferir e <strong>só grava no banco depois que você confirmar</strong>.</p>
+
+      <div class="hz-ambiente" id="hz-ambiente" role="alert" hidden></div>
+
+      <div class="hz-etapas" id="hz-etapas" aria-label="Etapas da importação">
+        <div class="hz-etapa" data-etapa="leitura"><span class="hz-etapa-num">1</span><span>Leitura do PDF</span></div>
+        <div class="hz-etapa-linha"></div>
+        <div class="hz-etapa" data-etapa="conferencia"><span class="hz-etapa-num">2</span><span>Conferência</span></div>
+        <div class="hz-etapa-linha"></div>
+        <div class="hz-etapa" data-etapa="gravacao"><span class="hz-etapa-num">3</span><span>Gravação</span></div>
+      </div>
+
+      <label class="hz-drop" id="hz-drop" for="arquivo-pdf">
+        <i class="ti ti-file-type-pdf"></i>
+        <strong id="hz-drop-titulo">Escolha o PDF ou arraste-o até aqui</strong>
+        <span id="hz-drop-info">Somente arquivos .pdf (até 20 MB)</span>
+      </label>
+      <input type="file" id="arquivo-pdf" accept="application/pdf,.pdf" hidden>
+
+      <div class="hz-acoes">
+        <button class="btn-config hz-btn" id="btn-ler" disabled><span class="hz-btn-txt">Ler PDF</span></button>
+        <button class="hz-btn hz-btn-sec" id="btn-limpar" hidden>Trocar arquivo</button>
+      </div>
+
+      <div class="hz-progresso" id="hz-progresso" hidden aria-live="polite">
+        <div class="hz-barra"><div class="hz-barra-preench" id="hz-barra"></div></div>
+        <div class="hz-progresso-msg"><span class="hz-spinner" aria-hidden="true"></span><span id="hz-msg">Aguardando…</span></div>
+      </div>
+
+      <div class="hz-erro" id="hz-erro" role="alert" hidden></div>
+    </section>
+
+    <!-- ============ 2. CONFERÊNCIA ============ -->
+    <section class="card hz-card" id="card-conferencia" hidden>
+      <div class="hz-topo-conf">
+        <h2 class="card-title">Conferência dos dados lidos</h2>
+        <span class="hz-arquivo" id="hz-arquivo"></span>
+      </div>
+      <div class="hz-resumo" id="hz-resumo"></div>
+      <div class="hz-aviso-reimport" id="hz-reimport" hidden></div>
+
+      <div class="hz-opcoes">
+        <label class="hz-check"><input type="checkbox" id="opt-criar-turmas">
+          <span>Criar automaticamente as turmas que ainda não estão cadastradas
+            <small>(o código de acesso de cada turma é gerado e mostrado no final)</small></span></label>
+      </div>
+
+      <div class="hz-abas" role="tablist">
+        <button class="hz-aba ativa" data-aba="turmas" role="tab">Turmas e horários</button>
+        <button class="hz-aba" data-aba="professores" role="tab">Professores</button>
+        <button class="hz-aba" data-aba="avisos" role="tab">Avisos e correções <span class="hz-contador" id="cont-avisos"></span></button>
+      </div>
+
+      <div class="hz-painel" id="aba-turmas"></div>
+      <div class="hz-painel" id="aba-professores" hidden></div>
+      <div class="hz-painel" id="aba-avisos" hidden></div>
+
+      <div class="hz-rodape-conf">
+        <div class="hz-pendencias" id="hz-pendencias" aria-live="polite"></div>
+        <div class="hz-acoes">
+          <button class="hz-btn hz-btn-sec" id="btn-cancelar">Cancelar importação</button>
+          <button class="btn-config hz-btn" id="btn-importar" disabled><span class="hz-btn-txt">Importar para o banco</span></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 3. RESULTADO ============ -->
+    <section class="card hz-card" id="card-resultado" hidden></section>
+
+    <!-- ============ CONSULTA ============ -->
+    <section class="card hz-card" id="card-consulta">
+      <h2 class="card-title">Consultar horários</h2>
+      <div class="hc-filtros">
+        <select id="hc-tipo" aria-label="Consultar por"><option value="turma">Por turma</option><option value="professor">Por professor</option></select>
+        <select id="hc-alvo" aria-label="Turma ou professor"></select>
+      </div>
+      <div id="hc-conteudo"><p class="hc-msg">Escolha uma turma ou professor para ver os horários gravados.</p></div>
+    </section>
+
+    <!-- ============ HISTÓRICO ============ -->
+    <section class="card hz-card" id="card-historico">
+      <h2 class="card-title">Importações anteriores</h2>
+      <div class="hz-grade-wrap"><table class="hz-tabela" id="hz-historico"><thead><tr><th>Data</th><th>Arquivo</th><th>Situação</th><th>Aulas</th></tr></thead><tbody></tbody></table></div>
+      <div class="hz-vazio" id="hz-historico-vazio" hidden>Nenhuma importação feita ainda.</div>
+    </section>
+  </main>
+</div>
+
+<!-- Modal de edição de uma aula -->
+<div class="hz-overlay" id="hz-modal" aria-hidden="true">
+  <div class="hz-modal" role="dialog" aria-modal="true" aria-labelledby="hz-modal-titulo">
+    <div class="hz-modal-topo"><h3 id="hz-modal-titulo">Editar aula</h3><button class="hz-fechar" id="hz-modal-fechar" aria-label="Fechar">&times;</button></div>
+    <p class="hz-modal-ctx" id="hz-modal-ctx"></p>
+    <div class="hz-modal-motivos" id="hz-modal-motivos"></div>
+    <label class="hz-campo"><span>Disciplina</span><input type="text" id="hz-campo-materia" maxlength="150"></label>
+    <label class="hz-campo"><span>Professores <small>(separe por vírgula)</small></span><input type="text" id="hz-campo-prof" list="hz-lista-prof" maxlength="400"></label>
+    <datalist id="hz-lista-prof"></datalist>
+    <div class="hz-modal-rodape">
+      <button class="hz-btn hz-btn-perigo" id="hz-modal-excluir">Não importar esta aula</button>
+      <span class="hz-espaco"></span>
+      <button class="hz-btn hz-btn-sec" id="hz-modal-conferir">Está correto</button>
+      <button class="btn-config hz-btn" id="hz-modal-salvar">Salvar alterações</button>
+    </div>
+  </div>
+</div>
+
+<script src="../../js/shared/horarios-consulta.js"></script>
+<script src="../../js/coordenador-importar-horarios.js?v=2"></script>
+<script src="../../js/shared/notification-center.js?v=3"></script>
+<script src="../../js/shared/usuario-logado.js"></script>
+  <script src="../../js/shared/mobile-experience.js?v=5"></script>
+</body>
+</html>
+
+
+
+

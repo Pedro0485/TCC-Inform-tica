@@ -1,0 +1,88 @@
+/* ==========================================================================
+   Animações discretas do painel (coordenadora / professor / aluno).
+   Princípios: só `transform` e `opacity` (rodam na GPU), durações curtas,
+   nenhum efeito é necessário para usar a interface (hover não é pré-requisito)
+   e tudo é reduzido/removido com prefers-reduced-motion.
+   ========================================================================== */
+:root {
+  --anim-rapida: 180ms;     /* botões, campos */
+  --anim-media: 260ms;      /* cards, menus, modais */
+  --anim-entrada: 320ms;    /* entrada de conteúdo */
+  --anim-ease: cubic-bezier(.22, 1, .36, 1);
+}
+
+/* ---------- Botões: elevação, sombra, luminosidade, clique, carregando ---------- */
+.btn-config, .btn-save, .btn-cancel, .btn-icon, .hz-btn, .notification-action-btn {
+  transition: transform var(--anim-rapida) var(--anim-ease),
+              box-shadow var(--anim-rapida) var(--anim-ease),
+              background-color var(--anim-rapida) ease,
+              filter var(--anim-rapida) ease,
+              color var(--anim-rapida) ease;
+  will-change: transform;
+}
+@media (hover: hover) {
+  .btn-config:hover:not(:disabled), .btn-save:hover:not(:disabled), .hz-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(225, 18, 51, .28);
+    filter: brightness(1.05);
+  }
+  .btn-cancel:hover:not(:disabled), .btn-icon:hover:not(:disabled) { transform: translateY(-1px); }
+}
+.btn-config:active:not(:disabled), .btn-save:active:not(:disabled), .btn-cancel:active:not(:disabled),
+.hz-btn:active:not(:disabled), .btn-icon:active:not(:disabled) {
+  transform: translateY(0) scale(.97);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .25);
+  filter: brightness(.96);
+  transition-duration: 70ms;                 /* resposta imediata ao clique */
+}
+.btn-config:disabled, .btn-save:disabled, .hz-btn:disabled { opacity: .6; cursor: not-allowed; }
+:where(button, a, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid #e11233; outline-offset: 2px;
+}
+
+/* Estado "carregando": spinner à esquerda do texto */
+.carregando { position: relative; cursor: progress !important; }
+.carregando .hz-btn-txt::before, .hz-spinner {
+  content: ""; display: inline-block; width: 14px; height: 14px; margin-right: 8px; vertical-align: -2px;
+  border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%;
+  animation: anim-girar .7s linear infinite;
+}
+.hz-spinner { margin-right: 0; }
+@keyframes anim-girar { to { transform: rotate(360deg); } }
+
+/* ---------- Cards: leve elevação (só em dispositivos com mouse) ---------- */
+.card { transition: transform var(--anim-media) var(--anim-ease), box-shadow var(--anim-media) var(--anim-ease); }
+@media (hover: hover) {
+  .card:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(0, 0, 0, .08); }
+}
+/* conteúdo principal entra suavemente (sem escalonar para não cansar) */
+.main > .card, .main > section { animation: anim-subir var(--anim-entrada) var(--anim-ease) both; }
+@keyframes anim-subir { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+/* ---------- Modais, menus e popovers: fade + pequeno deslocamento ---------- */
+.modal-overlay.open, .hz-overlay.aberto { animation: anim-fade var(--anim-media) ease both; }
+.modal-overlay.open .modal, .hz-overlay.aberto .hz-modal { animation: anim-modal var(--anim-media) var(--anim-ease) both; }
+.notification-popover, .notification-detail-modal { animation: anim-modal var(--anim-media) var(--anim-ease) both; }
+@keyframes anim-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes anim-modal { from { opacity: 0; transform: translateY(12px) scale(.98); } to { opacity: 1; transform: none; } }
+
+/* ---------- Mensagens de sucesso / erro ---------- */
+.hz-erro:not([hidden]), .mensagem.erro { animation: anim-tremer 380ms ease both; }
+.hz-sucesso, .mensagem.sucesso { animation: anim-fade var(--anim-media) ease both; }
+@keyframes anim-tremer {
+  0% { opacity: 0; transform: translateX(-6px); } 30% { opacity: 1; transform: translateX(5px); }
+  55% { transform: translateX(-3px); } 80% { transform: translateX(2px); } 100% { transform: none; }
+}
+
+/* ---------- Campos ---------- */
+input, select, textarea { transition: box-shadow var(--anim-rapida) ease, border-color var(--anim-rapida) ease, background-color var(--anim-rapida) ease; }
+
+/* ---------- Acessibilidade: reduzir movimento ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important; animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important; scroll-behavior: auto !important;
+  }
+  .carregando .hz-btn-txt::before, .hz-spinner { animation: none; border-right-color: currentColor; opacity: .6; }
+  .card:hover, .btn-config:hover, .hz-btn:hover { transform: none !important; }
+}

@@ -1,0 +1,8 @@
+{
+  "ignore": [
+    "storage/importacoes-tmp/**",
+    "storage/importacoes-tmp/*",
+    "uploads/**",
+    "uploads/*"
+  ]
+}

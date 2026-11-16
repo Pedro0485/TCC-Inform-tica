@@ -1,0 +1,24 @@
+# Dependências
+node_modules/
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Segredos e ambiente
+.env
+.env.*
+!.env.example
+backend/certs/*
+!backend/certs/ca.pem
+
+# Arquivos enviados / temporários
+backend/uploads/*
+!backend/uploads/.gitkeep
+backend/storage/importacoes-tmp/
+
+# Sistema / editores / logs
+.DS_Store
+Thumbs.db
+.vscode/
+*.log

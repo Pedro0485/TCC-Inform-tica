@@ -1,0 +1,201 @@
+# Lista OFICIAL de matérias/disciplinas (um nome por linha, SEM o marcador TA/TB).
+# O leitor de PDF compara cada matéria lida com esta lista e troca pelo nome certo quando for parecida.
+# O marcador de grupo (TA / TB) lido do PDF é mantido; 'II' e 'I' nunca são confundidos.
+# Linhas começadas por # e linhas vazias são ignoradas. Outro local: HORARIOS_MATERIAS no .env.
+# Gerada a partir dos PDFs MANHÃ, TARDE e NOITE -- confira e ajuste. Erros de digitação dos PDFs
+# já foram corrigidos aqui (ex.: Organizacional, Mercadológica, Desenvolvimento, IoT).
+
+Acionamento de Força e Controle
+Ações Estratégicas de Marketing
+Adm. de Prod. e Serviços
+Adm. Financeira e Orçamentária
+Adm. Recursos Humanos
+Administração e Seg. em Serviços
+Administração Financeira
+Administração Mercadológica
+Administração Pública
+Análise de Circuitos Elétricos
+Análise de Riscos
+Análise e Projetos de Sistemas
+Análise Ergonômica do Trabalho
+Apl Inf
+Aplic Info
+Aplicativos Informatizados
+Artes
+Automação Industrial I
+Automação Industrial II
+Automação Industrial III
+Banco de Dados I
+Banco de Dados II
+Biologia
+Boas Práticas em Serviços
+Calc. de Folha de Pagamento
+Cálculos Financeiros e Estatístico
+Circuitos Elétricos III
+Comandos Elétricos
+Comércio Internacional
+Comp. em Nuvem e Mídias Sociais
+Conduta Prof. Rel. Trabalho
+Controle de Obras
+Controle e Automação
+Custos, Proc. e Oper. Contábeis
+Custos, Processos e Op. Contábeis
+Dep Pessoal
+Des. Básico Apl. Edificações
+Des. de Projetos Técnicos
+Des. Modelo de Negócios
+Desen. do TCC
+Desenho Auxiliado por Comp.
+Desenho Básico Apl. Edificações
+Desenho e Simulação Elétrica
+Desenho Técnico Mecânico
+Desenho Técnico por Computador
+Desenv. de Modelos de Negócios
+Desenv. Modelo de Negócios
+Desenv. Sistemas Embarcados
+Desenvolvimento de Sistemas
+Desenvolvimento de Sistemas I
+Desenvolvimento do TCC
+Diagnóstico de Alimentação
+EACHSA
+EACNT
+EAMT
+Economia e Mercado
+Ed. Física
+Eficiência Energética
+Elaboração de Projetos
+Elementos de Máquinas
+Eletricidade
+Eletricidade Básica
+Eletrônica Analógica
+Eletrônica Digital
+Est. do regime de Trabalho
+Estruturas na Construção Civil
+Estudos da Adm. Pública
+Estudos de Economia
+Estudos de Matemática e Física
+Estudos de Solos
+Estudos de Solos e Fundações
+Estudos de Viabilidade
+Estudos Jurídicos das Rel. Trab.
+Ética e Cidadania
+Ética e Cidadania Organizacional
+Filosofia
+Física
+Geografia
+Geração de Energia
+Geração, Transmissão e Distribuição de Energia
+Gestão de Serviços Especiais
+Gestão de Sist. Operacionais I
+Gestão de Sist. Operacionais II
+Gestão em Saúde Ocupacional
+Gestão Industrial
+Gestão Operacional em Serviços
+Gestão Profissional em Unid. de Alimentos
+Higiene Ocupacional e Seg. Trabalho
+História
+Inglês
+Inglês Instrumental
+Instalações e Manut. de Comp.
+Instalações Prediais
+Lab. Med. Intervenção Socio
+Lab. Processos Criativos
+Legislação Empresarial
+Linguagens de Prog. Microcontroladores
+LTT
+Máq. Controle Numérico
+Máquinas Elétricas
+Máquinas, Comandos e Controladores
+Matemática
+Materiais e Montagens Elétricas
+Mecanismos Mecatrônicos
+Metrologia
+Modelagem de BD
+Normalização em Seg. Trabalho
+Organização Industrial
+P. Org. Dep Pess
+Pesquisa de Mercado
+Pl.e Org. Rot. Adm
+Plan. do TCC
+Planej. e Desenv. TCC
+Planej. e Org. Rotinas Administrativas
+Planej. Empresarial
+Planej. Org. Rotinas de DP
+Planejamento de Processos Comerciais
+Planejamento Empresarial
+Planejamento Estratégico
+Português
+Prevenção às Doenças Profissionais
+Prevenção e Combate Sinistros
+Proc. Administrativos em Recursos Humanos
+Proc. Criativos
+Processos Adm. em RH
+Processos Comerciais
+Processos de Fabricação I
+Processos de Fabricação II
+Processos de Fabricação III
+Processos de Produção de Bens
+Processos Log. Empresariais
+Processos Logísticos
+Prog. Computadores II
+Prog. de Apl. Mobile
+Prog. Web II
+Programação de Apl. Mobile I
+Programação e Algoritmos
+Programação Web I
+Programação Web II
+Programas e Processos Apl. Saúde e ST
+Proj. de Tecnologia da Informação
+Proj. Tecnologia de Informação
+Projetos de Des. Sistemas
+Projetos de Instalação
+Projetos de Tecnologia da Informação
+Projetos de Tecnologia de Informação
+Projetos Tec. da Informação e Com.
+Promoção de Vendas e Merchandising
+Proteção Contra Descargas Atmosf.
+PTCC
+Química
+Recrutamento e Seleção
+Redes de Comunicação de Dados II
+Relações Humanas no Trabalho
+Rep. Dig. e Mod em 3D
+Representação Digital em Seg. Trabalho
+Resistência dos Materiais
+Resistências e Ensaios
+Robótica e Manufatura
+Rot. Dep. Pessoal
+Rotinas de Dep. Pessoal
+Seg. do Trabalho e Meio Ambiente
+Segurança Digital
+Segurança do Trabalho e Meio Ambiente
+Segurança nos Proc. Industriais
+Sist. de Tec. Informação e Comunicação
+Sistemas de Acionamento Eletrônico
+Sistemas de Conversão de Potência
+Sistemas Embarcados e IoT
+Sistemas Hidráulicos
+Sistemas Supervisórios
+Sociologia
+Suporte a Banco de Dados
+Suporte ao Usuário
+Suporte em Informática
+Téc Manutenção Elétrica
+Tec. da Infor. Adm.
+Tec. de Práticas Construtivas
+Téc. e Prát. de Infra. e Vedação
+Tec. e Práticas Construtivas
+Tec. em Manutenção
+Tec. Materiais de Construção
+Tec. Materiais de Construção II
+Técnica Dietética I
+Técnicas de Estruturação
+Tecnologia CNC
+Tecnologia da Informação
+Tecnologia da Manufatura
+Tecnologia dos Alimentos
+Tecnologia em Soldagem
+Tecnologia Mecânica
+Terapia Nutricional
+Topografia Apl. à Construção
+Transmissão de Energia

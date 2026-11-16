@@ -1,0 +1,145 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Usuários - Coordenador</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+  <link rel="stylesheet" href="../../css/coordenador.css?v=3">
+  <link rel="stylesheet" href="../../css/coordenador-usuarios.css?v=4">
+  <link rel="shortcut icon" href="../../assets/images/logo.png" type="image/x-icon">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="stylesheet" href="../../css/shared/notificacoes-sino.css?v=3">
+  <link rel="stylesheet" href="../../css/shared/mobile-experience.css?v=5">
+</head>
+<body>
+
+<div class="page">
+  <aside class="sidebar">
+    <div class="logo">
+      <i class="ti ti-school"></i>
+      <span>Coordenador</span>
+    </div>
+    <nav>
+      <a class="nav-item" href="coordenador-home.html">
+        <i class="ti ti-bell"></i>
+        <span>Notificações</span>
+      </a>
+
+      <a class="nav-item" href="coordenador-calendario.html">
+        <i class="ti ti-calendar"></i>
+        <span>Calendário</span>
+      </a>
+
+            <a class="nav-item" href="coordenador-importar-horarios.html">
+        <i class="ti ti-file-import"></i>
+        <span>Importar horários por PDF</span>
+      </a>
+<a class="nav-item" href="coordenador-salas.html">
+        <i class="ti ti-door"></i>
+        <span>Salas</span>
+      </a>
+      <a class="nav-item" href="coordenador-codigos-salas.html"><i class="ti ti-key"></i><span>C&#243;digos das salas</span></a>
+
+      <a class="nav-item active" href="coordenador-usuarios.html">
+        <i class="ti ti-users"></i>
+        <span>Usuários</span>
+      </a>
+
+      <a class="nav-item" href="coordenador-configuracoes.html">
+        <i class="ti ti-settings"></i>
+        <span>Configurações</span>
+      </a>
+
+      <a class="nav-item nav-logout" href="#">
+        <i class="ti ti-logout"></i>
+        <span>Sair</span>
+      </a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <!-- ================= PROFESSORES ================= -->
+    <div class="card">
+      <div class="card-header-row">
+        <h2 class="card-title">Professores</h2>
+        <button class="btn-config" onclick="abrirModalProfessor()">
+          <i class="ti ti-plus"></i>
+          Novo professor
+        </button>
+      </div>
+
+      <table class="tabela-usuarios" id="tabela-professores">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Coordenador(a)</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="corpo-professores"></tbody>
+      </table>
+      <div class="empty-state" id="professores-vazio" style="display:none;">
+        <i class="ti ti-users-group"></i>
+        <span>Nenhum professor cadastrado</span>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Modal: criar/editar professor -->
+<div class="modal-overlay" id="modal-professor-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-professor-titulo">Novo professor</h3>
+      <button class="modal-close" onclick="fecharModalProfessor()">✕</button>
+    </div>
+
+    <form id="form-professor">
+      <input type="hidden" id="professor-id">
+
+      <div class="config-item">
+        <span>Nome</span>
+        <input type="text" id="professor-nome" placeholder="Nome completo" required>
+      </div>
+
+      <div class="config-item">
+        <span>Email</span>
+        <input type="email" id="professor-email" placeholder="email@escola.com" required>
+      </div>
+
+      <div class="config-item">
+        <span id="professor-senha-label">Senha</span>
+        <div class="senha-visivel-wrap">
+          <input type="password" id="professor-senha" placeholder="Senha" autocomplete="new-password">
+          <button type="button" class="senha-visivel-btn" id="professor-senha-toggle" aria-label="Mostrar senha" aria-pressed="false" title="Mostrar senha"><i class="ti ti-eye"></i></button>
+        </div>
+      </div>
+
+      <div class="config-item">
+        <span>É coordenador(a)?</span>
+        <label class="switch">
+          <input type="checkbox" id="professor-admin">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" onclick="fecharModalProfessor()">Cancelar</button>
+        <button type="submit" class="btn-save">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="../../js/coordenador-usuarios.js"></script>
+  <script src="../../js/notification-center.js?v=3"></script>
+<script src="../../js/shared/usuario-logado.js"></script>
+  <script src="../../js/shared/mobile-experience.js?v=5"></script>
+</body>
+</html>
+
+

@@ -1,0 +1,77 @@
+# Lista OFICIAL de professores (um nome por linha, com a grafia correta e acentos).
+# O leitor de PDF compara cada nome lido com esta lista e troca pelo nome certo quando for parecido.
+# Linhas começadas por # e linhas vazias são ignoradas.
+# Gerada a partir dos PDFs MANHÃ, TARDE e NOITE -- confira acentos e sobrenomes.
+# "Jacqueline" aparece só com o primeiro nome nos PDFs; se souber o sobrenome, adicione abaixo.
+
+Adalberto Fiorelli
+Airton Cristianini
+Alan Sales
+Alex Conti
+Ana Maria Cavarieri
+Ana Sheila Moraco
+André Lima
+Antonio Ribeiro
+Camilo Mesquita
+Carolina Criscuolo
+Carlos Medina
+Charles Sartori
+Daniel Sega
+Daniela Creado
+David Porcel
+Edson Franca
+Everton Sette
+Evandro Amadeu
+Evandro Pecori
+Fábio Zanatto
+Fabio Paglialogo
+Gabriela Gianini
+Gabriela Strafolino
+George Gallo
+Giovanna Machado
+Giovanna Pascolat
+Greyce Souza
+Gustavo Biliasi
+Gustavo Ferin
+Isabelle Nasc.
+Janaina Frasson
+Janaina Scaliza
+Jarbas Pedroso
+Jeniffer Silvério
+João Lamesa
+Joice Nicola
+José Meira
+Juviana Lisboa
+Karina Osti
+Leonardo Lourenço
+Lucas Matos
+Lucio Fiorelli
+Marcelo Sabbadini
+Marcia Regina Zugliani
+Marcos Pagagnotti
+Maria Ivone Chagas
+Mauricio Hilst
+Milena Fonseca
+Miriam Damiati
+Nídia Vieira
+Nivaldo Paes
+Osmar Floret
+Patricia Botari
+Patricia Camargo
+Patricia Orefice
+Patrícia Fulan
+Priscila Rodrigues
+Rinaldo dos Santos
+Roberta Polônio
+Rogério Vieira
+Sergio Cevallos
+Sergio Eduardo
+Simone Burgos
+Sonia Salvador
+Telma Juliana
+Thiago Colatto
+Thiago Freitas
+Tiago Antonio
+Tiago Candela
+Wagneton Lages
+Wellington Guarnieri

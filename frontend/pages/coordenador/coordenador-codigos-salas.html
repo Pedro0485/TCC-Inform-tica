@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Códigos das salas - Coordenador</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+  <link rel="stylesheet" href="../../css/coordenador.css?v=3">
+  <link rel="stylesheet" href="../../css/coordenador-codigos-salas.css?v=1">
+  <link rel="stylesheet" href="../../css/shared/notificacoes-sino.css?v=3">
+  <link rel="stylesheet" href="../../css/shared/mobile-experience.css?v=5">
+</head>
+<body>
+  <div class="page">
+    <aside class="sidebar">
+      <div class="logo"><i class="ti ti-school"></i><span>Coordenador</span></div>
+      <nav>
+        <a class="nav-item" href="coordenador-home.html"><i class="ti ti-bell"></i><span>Notificações</span></a>
+        <a class="nav-item" href="coordenador-calendario.html"><i class="ti ti-calendar"></i><span>Calendário</span></a>
+        <a class="nav-item" href="coordenador-importar-horarios.html"><i class="ti ti-file-import"></i><span>Importar horários por PDF</span></a>
+        <a class="nav-item" href="coordenador-salas.html"><i class="ti ti-door"></i><span>Salas</span></a>
+        <a class="nav-item active" href="coordenador-codigos-salas.html"><i class="ti ti-key"></i><span>Códigos das salas</span></a>
+        <a class="nav-item" href="coordenador-usuarios.html"><i class="ti ti-users"></i><span>Usuários</span></a>
+        <a class="nav-item" href="coordenador-configuracoes.html"><i class="ti ti-settings"></i><span>Configurações</span></a>
+        <a class="nav-item nav-logout" href="#"><i class="ti ti-logout"></i><span>Sair</span></a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <section class="card codes-card">
+        <div class="codes-heading">
+          <div>
+            <h1 class="card-title">Códigos das salas</h1>
+            <p>Consulte e copie o código de acesso de cada turma para compartilhar com os alunos.</p>
+          </div>
+          <a class="codes-manage-link" href="coordenador-salas.html"><i class="ti ti-edit"></i> Gerenciar salas</a>
+        </div>
+
+        <label class="codes-search">
+          <i class="ti ti-search" aria-hidden="true"></i>
+          <span class="sr-only">Buscar turma</span>
+          <input id="codes-search-input" type="search" placeholder="Buscar por curso, ano, turno ou código" autocomplete="off">
+        </label>
+
+        <p id="codes-status" class="codes-status" role="status" aria-live="polite">Carregando códigos...</p>
+        <div class="codes-table-wrap">
+          <table class="codes-table">
+            <thead>
+              <tr><th>Turma</th><th>Ano</th><th>Turno</th><th>Código de acesso</th></tr>
+            </thead>
+            <tbody id="codes-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="../../js/coordenador-codigos-salas.js?v=1"></script>
+  <script src="../../js/notification-center.js?v=3"></script>
+  <script src="../../js/shared/usuario-logado.js"></script>
+  <script src="../../js/shared/mobile-experience.js?v=5"></script>
+</body>
+</html>
