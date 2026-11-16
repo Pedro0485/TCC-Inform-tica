@@ -1,0 +1,31 @@
+{
+  "name": "tcc-backend",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "db:schema": "node scripts/createSchema.js",
+    "db:migrate": "node scripts/migrate.js",
+    "seed:admin": "node scripts/seedAdmin.js",
+    "db:check": "node scripts/verificarBanco.js",
+    "excluir:professores": "node scripts/excluirProfessores.js",
+    "excluir:aulas": "node scripts/excluirAulas.js"
+  },
+  "license": "ISC",
+  "description": "API do sistema acadêmico (TCC): login, turmas, professores, horários, notificações e calendário.",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.2.0",
+    "mysql2": "^3.23.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  },
+  "private": true
+}

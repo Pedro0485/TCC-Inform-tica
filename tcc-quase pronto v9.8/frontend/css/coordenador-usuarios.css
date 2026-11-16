@@ -1,0 +1,181 @@
+/* ── Cabeçalho do card (título + botão de ação) ── */
+.card-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 1rem;
+}
+
+.card-header-row .btn-config {
+  width: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── Tabela de turmas / professores ── */
+.tabela-usuarios {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+.tabela-usuarios th, .tabela-usuarios td {
+  text-align: left;
+  padding: 10px 8px;
+  border-bottom: 1px solid #eee;
+}
+.tabela-usuarios th {
+  color: #888;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+.tabela-usuarios td.col-acoes {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.btn-icon {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #888;
+  padding: 4px 6px;
+  border-radius: 6px;
+  transition: background .15s, color .15s;
+}
+.btn-icon:hover { background: #f3f4f6; color: #333; }
+.btn-icon.btn-danger:hover { color: #e11233; background: #fff0f2; }
+
+.badge-admin {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.badge-admin.sim { background: #e6f4ea; color: #1a7a35; }
+.badge-admin.nao { background: #f1f1f1; color: #888; }
+
+.card + .card { margin-top: 1.25rem; }
+
+/* ── Modal (mesmo padrão visual usado em coordenador-salas) ── */
+.modal-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.45);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.75rem;
+  width: min(460px, 95vw);
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,.25);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+.modal-header h3 { font-size: 17px; font-weight: 700; color: #222; }
+.modal-close {
+  background: none; border: none; font-size: 22px;
+  cursor: pointer; color: #888; line-height: 1;
+  transition: color .15s;
+}
+.modal-close:hover { color: #e11233; }
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+}
+.btn-cancel, .btn-save {
+  padding: 9px 20px; border-radius: 10px; border: 1px solid #ddd;
+  background: #f5f5f5; font-size: 13px; cursor: pointer;
+  font-family: inherit; color: #555;
+  transition: background .15s;
+}
+.btn-cancel:hover { background: #2d2d2d; color: #eee; transition: .5s; }
+.btn-save:hover { background-color: #e11233; color: #f5f5f5; transition: .5s; }
+
+/* ── Tema escuro ── */
+html[data-tema="escuro"] body .tabela-usuarios th, html[data-tema="escuro"] body .tabela-usuarios td { border-color: #333; }
+html[data-tema="escuro"] body .tabela-usuarios th { color: #999; }
+html[data-tema="escuro"] body .tabela-usuarios td { color: #eee; }
+
+html[data-tema="escuro"] body .btn-icon { color: #aaa; }
+html[data-tema="escuro"] body .btn-icon:hover { background: #2b2b2b; color: #eee; }
+html[data-tema="escuro"] body .btn-icon.btn-danger:hover { background: #3b2529; color: #ff5c76; }
+
+html[data-tema="escuro"] body .badge-admin.sim { background: #1c3a26; color: #6fd48c; }
+html[data-tema="escuro"] body .badge-admin.nao { background: #2b2b2b; color: #aaa; }
+
+html[data-tema="escuro"] body .modal { background: #1e1e1e; }
+html[data-tema="escuro"] body .modal-header h3 { color: #eee; }
+html[data-tema="escuro"] body .modal-close { color: #aaa; }
+html[data-tema="escuro"] body .modal-footer { border-color: #333; }
+
+html[data-tema="escuro"] body .btn-cancel,
+html[data-tema="escuro"] body .btn-save {
+  background: #2b2b2b;
+  border-color: #444;
+  color: #ddd;
+}
+html[data-tema="escuro"] body .btn-save:hover { background-color: #e11233; color: #fff; }
+
+.senha-visivel-wrap { position: relative; display: flex; align-items: center; width: 100%; }
+.senha-visivel-wrap input { width: 100%; padding-right: 42px; }
+.senha-visivel-btn { position: absolute; right: 6px; display: grid; place-items: center; width: 32px; height: 32px; border: 0; border-radius: 6px; background: transparent; color: #666; cursor: pointer; }
+.senha-visivel-btn:hover { background: #f0f0f0; color: #e11233; }
+/* Campo de senha no estilo da referência */
+.senha-visivel-wrap { min-width: 0; width: 250px; }
+.senha-visivel-wrap input {
+  width: 100%; height: 36px; padding: 8px 38px 8px 12px;
+  border: 1px solid #d0d0d0; border-radius: 8px; background: #fff;
+  color: #222; font: 13px 'Segoe UI', system-ui, sans-serif;
+  outline: none; transition: border-color .15s, box-shadow .15s;
+}
+.senha-visivel-wrap input::placeholder { color: #888; }
+.senha-visivel-wrap input:focus { border-color: #999; box-shadow: 0 0 0 2px rgba(0,0,0,.05); }
+.senha-visivel-btn {
+  right: 5px; width: 28px; height: 28px; color: #858585;
+  border-radius: 50%; font-size: 15px;
+}
+.senha-visivel-btn:hover { background: #f3f3f3; color: #555; }
+@media (max-width: 768px) {
+  .tabela-usuarios { display: block !important; width: 100% !important; min-width: 0 !important; border-collapse: separate; border-spacing: 0; }
+  .tabela-usuarios thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+  .tabela-usuarios tbody { display: grid; gap: 10px; width: 100%; }
+  .tabela-usuarios tr { display: block; width: 100%; padding: 8px 11px; border: 1px solid #e8e8e8; border-radius: 12px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.035); }
+  .tabela-usuarios td { display: grid; grid-template-columns: minmax(70px, 26%) minmax(0, 1fr); align-items: start; gap: 8px; width: 100%; padding: 8px 0; border-bottom: 1px solid #f0f0f0; font-size: 13px; line-height: 1.45; overflow-wrap: anywhere; word-break: break-word; }
+  .tabela-usuarios td::before { color: #777; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; }
+  .tabela-usuarios td:nth-child(1)::before { content: 'Nome'; }
+  .tabela-usuarios td:nth-child(2)::before { content: 'Email'; }
+  .tabela-usuarios td:nth-child(3)::before { content: 'Perfil'; }
+  .tabela-usuarios td.col-acoes { display: flex; justify-content: flex-end; gap: 8px; padding: 7px 0 2px; border: 0; }
+  .tabela-usuarios td.col-acoes::before { content: 'Ações'; margin-right: auto; align-self: center; }
+  .tabela-usuarios .btn-icon { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 1px solid #e5e5e5; border-radius: 10px; background: #fff; font-size: 18px; }
+  .users-page-title { color: #222; }
+  .tabela-usuarios tr:focus-within { border-color: rgba(225,18,51,.4); box-shadow: 0 0 0 3px rgba(225,18,51,.08); }
+  html[data-tema="escuro"] .tabela-usuarios tr { background: #222; border-color: #383838; }
+  html[data-tema="escuro"] .tabela-usuarios td { border-color: #383838; }
+}@media (max-width: 768px) {
+  .card-header-row { display: grid; grid-template-columns: 1fr; align-items: stretch; }
+  .card-header-row .btn-config { width: 100% !important; justify-content: center; }
+}
