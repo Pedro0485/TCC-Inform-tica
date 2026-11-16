@@ -1,0 +1,12 @@
+.git
+.github
+**/node_modules
+**/.venv
+**/venv
+**/__pycache__
+**/*.pyc
+**/.env
+**/.env.*
+backend/uploads/*
+!backend/uploads/.gitkeep
+backend/storage/importacoes-tmp/*
